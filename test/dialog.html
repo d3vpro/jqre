@@ -1,0 +1,138 @@
+<html>
+    <head>
+        <title>JQRE dialog test</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class="container pt-3 pb-3">
+            <div id="dialog1">
+                <h1>Dialog title</h1>
+                <div class="form-group">
+                    <label for="field">Label</label>
+                    <input type="text" class="form-control" id="field" placeholder="Field">
+                </div>
+            </div>
+            <div id="dialog2">
+                <h1>Dialog title 2</h1>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+                <p>text</p>
+            </div>
+            <p>Should see in console: create, open, widget[Array], instance[Object], yes, beforeClose, close, no, 0, create, open</p>
+        </div>
+
+        <!--<script src="../jqre.full.min.js"></script>
+        <script>
+var $ = jqre();
+$(document).ready(function(){-->
+
+        <!--<script type="module">
+import {jqre} from '../modules.min/jqre.js';
+(async () => {
+    window.$ = await jqre(['all']);-->
+
+    <!--$('#dialog1').dialog({
+        applyStyle: true,
+        closeOnModalClick: true,
+        autoOpen: true,
+        classes: {
+            "ui-dialog-container": "ui-dialog-container",
+            "ui-dialog-overlay": "",
+            "ui-dialog": "border rounded"
+        },
+        closeOnEscape: true,
+        height: 'auto',
+        maxHeight: 0.9 * window.innerHeight,
+        minHeight: 400,
+        width: '600px',
+        maxWidth: 0.9 * window.innerWidth,
+        minWidth: 400,
+        modal: true,
+        beforeClose: function() { console.log('beforeClose'); },
+        close: function() { console.log('close'); },
+        create: function() { console.log('create'); },
+        open: function() { console.log('open'); }
+    });
+    
+    console.log($('#dialog1').dialog('widget'), $('#dialog1').dialog('instance'));
+    console.log($('#dialog1').dialog('isOpen') ? 'yes' : 'no');
+    $('#dialog1').dialog('close');
+    console.log($('#dialog1').dialog('isOpen') ? 'yes' : 'no');
+    $('#dialog1').dialog('destroy');
+    console.log($('#dialog1').length);
+    
+    $('#dialog2').dialog({
+        applyStyle: true,
+        closeOnModalClick: true,
+        autoOpen: false,
+        classes: {
+            "ui-dialog-container": "ui-dialog-container",
+            "ui-dialog-overlay": "",
+            "ui-dialog": "border rounded"
+        },
+        closeOnEscape: true,
+        height: 'auto',
+        maxHeight: 0.9 * window.innerHeight,
+        minHeight: 400,
+        width: '600px',
+        maxWidth: 0.9 * window.innerWidth,
+        minWidth: 400,
+        modal: true,
+        beforeClose: function(event, ui) { console.log('beforeClose', event, ui); },
+        close: function(event, ui) { console.log('close', event, ui); },
+        create: function(event, ui) { console.log('create', event, ui); },
+        open: function(event, ui) { console.log('open', event, ui); }
+    });
+    $('#dialog2').dialog('open');-->
+
+<!--})();</script>-->
+
+<!--});</script>-->
+
+        <script>
+(() => {
+    let min = false;
+    let mod = false;
+    if (window.location.search) {
+        for (const i of window.location.search.substr(1).split('&')) {
+            if (i.split('=')[0] === 'min') {
+                min = true;
+            } else if (i.split('=')[0] === 'mod') {
+                mod = true;
+            }
+        }
+    }
+    if (mod) {
+        let content = document.body.childNodes[5].textContent + "\n" + document.body.childNodes[7].textContent + "\n" + document.body.childNodes[9].textContent;
+        if (!min) {
+            content = content.replace('/modules.min/', '/modules/');
+        }
+        let script = document.createElement('script');
+        script.type = 'module';
+        script.text = content.substr(content.indexOf('>') + 1).replace('</' + 'script>', '');
+        document.body.appendChild(script);
+    } else {
+        let content = document.body.childNodes[3].textContent + "\n" + document.body.childNodes[7].textContent + "\n" + document.body.childNodes[11].textContent;
+        if (!min) {
+            content = content.replace('.full.min.', '.full.');
+        }
+        content = content.split('</' + 'script>');
+        let script1 = document.createElement('script');
+        script1.src = content[0].substring(content[0].indexOf('src=') + 5, content[0].indexOf('"', content[0].indexOf('src=') + 6));
+        document.body.appendChild(script1);
+        let script2 = document.createElement('script');
+        script2.text = content[1].substr(content[1].indexOf('>') + 1);
+        setTimeout(function(){document.body.appendChild(script2);}, 100);
+    }
+})();
+        </script>
+    </body>
+</html>

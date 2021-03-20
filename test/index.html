@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>JQRE Tests</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class="container pt-3 pb-3" id="content">
+            <p>
+                In order for modular tests to work on local, in Firefox you must disable in about:config <code>security.fileuri.strict_origin_policy</code>
+            </p>
+            <a class="btn btn-primary" target="_blank" href="./jq.html">jQ full</a>
+            <a class="btn btn-primary" target="_blank" href="./jq.html?min=1">jQ full minified</a>
+            <a class="btn btn-primary" target="_blank" href="./jq.html?mod=1">jQ modular</a>
+            <a class="btn btn-primary" target="_blank" href="./jq.html?mod=1&min=1">jQ modular minified</a>
+            <a class="btn btn-primary" target="_blank" href="./jq.html?jquery=1">jQuery</a>
+            <br /><br />
+            <a class="btn btn-primary" target="_blank" href="./re.html">Re full</a>
+            <a class="btn btn-primary" target="_blank" href="./re.html?min=1">Re full minified</a>
+            <a class="btn btn-primary" target="_blank" href="./re.html?mod=1">Re modular</a>
+            <a class="btn btn-primary" target="_blank" href="./re.html?mod=1&min=1">Re modular minified</a>
+            <br /><br />
+            <a class="btn btn-primary" target="_blank" href="./autocomplete.html">Autocomplete full</a>
+            <a class="btn btn-primary" target="_blank" href="./autocomplete.html?min=1">Autocomplete full minified</a>
+            <a class="btn btn-primary" target="_blank" href="./autocomplete.html?mod=1">Autocomplete modular</a>
+            <a class="btn btn-primary" target="_blank" href="./autocomplete.html?mod=1&min=1">Autocomplete modular minified</a>
+            <div class="alert alert-info m-0 d-inline-block mt-1">Autocomplete includes touchPunch, swipe, isMobile tests</div>
+            <br /><br />
+            <a class="btn btn-primary" target="_blank" href="./dialog.html">Dialog full</a>
+            <a class="btn btn-primary" target="_blank" href="./dialog.html?min=1">Dialog full minified</a>
+            <a class="btn btn-primary" target="_blank" href="./dialog.html?mod=1">Dialog modular</a>
+            <a class="btn btn-primary" target="_blank" href="./dialog.html?mod=1&min=1">Dialog modular minified</a>
+        </div>
+    </body>
+</html>

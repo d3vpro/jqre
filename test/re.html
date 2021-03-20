@@ -1,0 +1,286 @@
+<html>
+    <head>
+        <title>JQRE REactive test</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class="container pt-3 pb-3" id="app">
+            <p>Should see in console: 15 logs with correct statements</p>
+            <div class="row">
+                <div class="col-12 col-md-auto">
+                    <h1 class="heading">Posts</h1>
+                </div>
+                <div class="col-12 col-md-auto pt-2">
+                    <button type="button" class="btn btn-primary add">Add</button>
+                </div>
+            </div>
+            <div id="posts" class="row pt-3 bg-light">
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary remove">Sort ASC</button>
+                    <button type="button" class="btn btn-primary remove">Sort DESC</button>
+                </div>
+                <div class="col-12 col-md-auto post card p-3 m-3">
+                    <p class="title">Post 1</p>
+                    <a href="/" class="readmore mb-3"></a>
+                    <button type="button" class="btn btn-primary remove">Remove</button>
+                </div>
+                <div class="col-12 col-md-auto post card p-3 m-3">
+                    <p class="title">Post 3</p>
+                    <a href="/" class="readmore mb-3"></a>
+                    <button type="button" class="btn btn-primary remove">Remove</button>
+                </div>
+                <div class="col-12 col-md-auto post card p-3 m-3">
+                    <p class="title">Post 2</p>
+                    <a href="/" class="readmore mb-3"></a>
+                    <button type="button" class="btn btn-primary remove">Remove</button>
+                </div>
+            </div>
+        </div>
+        
+        <!--<script src="../jqre.full.min.js"></script>
+        <script>
+var $ = jqre();
+$(document).ready(function(){-->
+
+        <!--<script type="module">
+import {jqre} from '../modules.min/jqre.js';
+(async () => {
+    window.$ = await jqre(['all']);-->
+
+    <!--$.r.define('post-item', {
+        data: {
+            posts: [],
+            postTemplate: '<div class="col-12 col-md-3 post card p-3 m-3"><p class="title"></p><a href="/" class="readmore mb-3"></a><button type="button" class="btn btn-primary remove">Remove</button></div>',
+            textReadMore: ''
+        },
+        events: {
+            create: function() {
+                console.log('app $id and $parent', this.$id, this.$parent);
+            },
+            update: {
+                posts: function() {
+                    let currPosts = this.$el.children('.post');
+                    let newPosts = this.posts.val();
+                    for (let i=newPosts.length; i<currPosts.length; i++) {
+                        currPosts[i].remove();
+                    }
+                    for (const [i, n] of newPosts.entries()) {
+                        let post = $(this.postTemplate.val());
+                        post.find('.title').text(n.title);
+                        post.find('.readmore').text(this.textReadMore.val());
+                        if (currPosts.length > i) {
+                            if (post[0].outerHtml !== currPosts[i].outerHTML) {
+                                this.$el[0].replaceChild(post[0], currPosts[i]);
+                            }
+                        } else {
+                            this.$el.append(post);
+                        }
+                    }
+                }
+            },
+            click: {
+                '.remove': function(event) {
+                    this.posts.unset($(event.target).closest('.post').index() - 1);
+                },
+                '.readmore': {
+                    data: {
+                        extraText: ' has no more details'
+                    },
+                    handler: function(event, data) {
+                        event.preventDefault();
+                        alert($(event.target).prev().text() + event.data.extraText);
+                    }
+                },
+                ':scope > div:first-child button': function(event) {
+                    this.$emit('toggleSortDirection', $(event.target).index() === 1 ? 'desc' : 'asc');
+                }
+            }
+        }
+    });
+
+    $.r.define('post-list', {
+        data: {
+            title: '',
+            noPostsMessage: '',
+            posts: [],
+            totalPosts: 0,
+            sortDirection: 'asc'
+        },
+        components: {
+            items: {
+                type: 'post-item',
+                el: '#posts',
+                data: {
+                    posts: $.r.ref('this.posts')
+                }
+            }
+        },
+        methods: {
+            loadPosts: function() {
+                let posts = [];
+                this.$find('.post .title').each(function() {
+                    posts.push({title: $(this).text()});
+                });
+                return posts;
+            },
+            addPost: function(title) {
+                this.posts.set(this.posts.val().length, {title: title});
+                this.sortPosts();
+            },
+            sortPosts: function() {
+                if (!this.posts.val()) {
+                    return;
+                }
+                this.posts.set(this.posts.val().sort(
+                    this.sortDirection.val() === 'desc' ? 
+                    function(a, b) { return a.title.toUpperCase() < b.title.toUpperCase() ? 1 : -1; } : 
+                    function(a, b) { return a.title.toUpperCase() > b.title.toUpperCase() ? 1 : -1; }
+                ));
+            }
+        },
+        events: {
+            create: function() {
+                if (this.$find('#no-posts').length === 0) {
+                    this.$el.append('<div id="no-posts" class="card p-3 m-3"><p>' + this.noPostsMessage.val() + '</p></div>');
+                }
+                this.posts.set(this.loadPosts());
+                this.sortPosts();
+            },
+            update: {
+                posts: function(oldV) {
+                    if (this.posts.val().length > 0) {
+                        this.$restore('#posts');
+                        this.$remove('#no-posts');
+                    } else {
+                        this.$remove('#posts');
+                        this.$restore('#no-posts');
+                    }
+                    this.totalPosts.set(this.posts.val().length);
+                },
+                totalPosts: function(oldV) {
+                    this.$find('.heading').text(this.title.val() + ' (' + this.totalPosts.val() + ')');
+                },
+                sortDirection: function(oldV) {
+                    this.sortPosts();
+                }
+            },
+            click: {
+                '.add': function() {
+                    let title;
+                    if (title = prompt('Title: ')) {
+                        this.addPost(title);
+                    }
+                }
+            },
+            toggleSortDirection: function(direction) {
+                this.sortDirection.set(direction);
+            }
+        }
+    });
+
+    $.r.init('app', {
+        type: 'post-list',
+        el: '#app',
+        data: {
+            title: $('h1').text(),
+            noPostsMessage: 'No posts to show'
+        },
+        components: {
+            items: {
+                data: {
+                    postTemplate: $('#posts').children().length > 1 ? $('#posts').children()[1].outerHTML : undefined,
+                    textReadMore: 'Read more'
+                }
+            }
+        }
+    });
+
+    /* Further tests */
+    $.r.trigger('app.items', 'toggleSortDirection', 'desc');
+    const test = function(){console.log('attached event run (this log should be unique)')};
+    $.r.attach('app.posts', test);
+    console.log('initial posts reversed', $.r.get('app.posts'));
+    $.r.set('app.posts', $.r.get('app.posts').length, {title: 'Post 4'});
+    $.r.deattach('app.posts', test);
+    $.r.set('app.posts', [{title:'entry 1'},{title:'Entry 2'},{title:'entry 3'},{title:'Entry 4'}]);
+    console.log('posts ref', $.r.ref('app.posts'));
+    $.r.data["state"]["app.totalPosts"] = 3
+    $.r.refresh('app.totalPosts');
+    console.log('changed and refreshed total from 4 to 3 and value displayed is', parseInt($('h1').text().split('(')[1]));
+    $.r.unset('app.posts', $.r.get('app.posts').length - 1);
+    $.r.unset('app.posts', $.r.get('app.posts').length - 1);
+    $.r.refresh('app.posts');
+    console.log('delete 2 posts and refreshed, total should be 2 and is', parseInt($('h1').text().split('(')[1]));
+    $.r.data.instances['app'].addPost('Entry 3');
+    $('.title').eq(1).next().next().click();
+    console.log('deleted post 2 by click event, total should be 2 and is', parseInt($('h1').text().split('(')[1]));
+    console.log('definitions', $.r.listDefinitions());
+    console.log('instances', $.r.listInstances());
+    console.log('instances custom events', $.r.listInstancesCustomEvents());
+    console.log('instances restore data', $.r.listInstancesRestoreData());
+    console.log('state', $.r.listState());
+    console.log('state update events', $.r.listStateUpdateEvents());
+    $.r.destroy('app');
+    console.log('app destroyed', $.r.data);
+
+    $.r.init('app', {
+        type: 'post-list',
+        el: '#app',
+        data: {
+            title: 'Total posts',
+            noPostsMessage: 'No posts to show'
+        },
+        components: {
+            items: {
+                data: {
+                    textReadMore: 'Read more'
+                }
+            }
+        }
+    });
+    /**/-->
+
+<!--})();</script>-->
+
+<!--});</script>-->
+
+        <script>
+(() => {
+    let min = false;
+    let mod = false;
+    if (window.location.search) {
+        for (const i of window.location.search.substr(1).split('&')) {
+            if (i.split('=')[0] === 'min') {
+                min = true;
+            } else if (i.split('=')[0] === 'mod') {
+                mod = true;
+            }
+        }
+    }
+    if (mod) {
+        let content = document.body.childNodes[5].textContent + "\n" + document.body.childNodes[7].textContent + "\n" + document.body.childNodes[9].textContent;
+        if (!min) {
+            content = content.replace('/modules.min/', '/modules/');
+        }
+        let script = document.createElement('script');
+        script.type = 'module';
+        script.text = content.substr(content.indexOf('>') + 1).replace('</' + 'script>', '');
+        document.body.appendChild(script);
+    } else {
+        let content = document.body.childNodes[3].textContent + "\n" + document.body.childNodes[7].textContent + "\n" + document.body.childNodes[11].textContent;
+        if (!min) {
+            content = content.replace('.full.min.', '.full.');
+        }
+        content = content.split('</' + 'script>');
+        let script1 = document.createElement('script');
+        script1.src = content[0].substring(content[0].indexOf('src=') + 5, content[0].indexOf('"', content[0].indexOf('src=') + 6));
+        document.body.appendChild(script1);
+        let script2 = document.createElement('script');
+        script2.text = content[1].substr(content[1].indexOf('>') + 1);
+        setTimeout(function(){document.body.appendChild(script2);}, 100);
+    }
+})();
+        </script>
+    </body>
+</html>

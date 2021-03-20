@@ -1,0 +1,909 @@
+<html>
+    <head>
+        <title>JQRE JQ test</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <ol id="test-list"></ol>
+        <div id="test-area" style="display: none;"></div>
+
+        <!--<script src="../jqre.full.min.js"></script>
+        <script>
+var $ = jqre();
+$(document).ready(async function(){-->
+
+        <!--<script type="module">
+import {jqre} from '../modules.min/jqre.js';
+(async () => {
+    window.$ = await jqre(['all']);-->
+
+    <!--var tests = {
+        'construct/add - selector - one result': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div>';
+            return $('#x').length === 1 ? 'OK' : 'FAIL';
+        },
+        'construct/add - selector - multiple results': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div>';
+            return $('#test-area > div').length === 2 ? 'OK' : 'FAIL';
+        },
+        'construct/add - selector - only first': function() {
+            if (window.jQuery) return 'SKIP - only first param is jQRe only';
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div>';
+            return $('#test-area > div', true).length === 1 ? 'OK' : 'FAIL';
+        },
+        'construct/add - selector - context - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="z"></div></div><div id="y"><div class="z"></div></div>';
+            return $('.z', '#test-area > #y').length === 1 ? 'OK' : 'FAIL';
+        },
+        'construct/add - selector - context - NodeList': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="z"></div></div><div id="y"><div class="z"></div></div>';
+            return $('.z', document.querySelectorAll('#test-area > div')).length === 2 ? 'OK' : 'FAIL';
+        },
+        'construct/add - selector - context - Node': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="z"></div></div><div id="y"><div class="z"></div></div>';
+            return $('.z', document.querySelector('#test-area > div')).length === 1 ? 'OK' : 'FAIL';
+        },
+        'construct/add - selector - context - JNode': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="z"></div></div><div id="y"><div class="z"></div></div>';
+            return $('.z', $('#test-area > div')).length === 2 ? 'OK' : 'FAIL';
+        },
+        'construct/add - html': function() {
+            const t = $('<div id="x"><div class="z"></div><div class="z"></div></div><div id="a"><div class="b></div></div>');
+            return t.length === 2 && t[0].children.length === 2 ? 'OK' : 'FAIL';
+        },
+        'construct/add - NodeList': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div></div><div id="y"></div></div>';
+            return $(document.querySelectorAll('#test-area > div')).length === 2 ? 'OK' : 'FAIL';
+        },
+        'construct/add - Node': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div></div><div id="y"></div></div>';
+            return $(document.querySelector('#test-area > div')).length === 1 ? 'OK' : 'FAIL';
+        },
+        'construct/add - JNode': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div></div><div id="y"></div></div>';
+            return $($('#test-area > div')).length === 2 ? 'OK' : 'FAIL';
+        },
+        'add - append': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div></div><div class="y"></div></div>';
+            return $('#x').add(document.getElementsByClassName('y')).length === 2 ? 'OK' : 'FAIL';
+        },
+        'add/remove/toggle class - string': function() {
+            document.querySelector('#test-area').innerHTML = '<div class="x"></div>';
+            return $('.x').addClass('y z')[0].classList.length === 3 ? 'OK' : 'FAIL';
+        },
+        'add/remove/toggle class - array': function() {
+            document.querySelector('#test-area').innerHTML = '<div class="x y z"></div>';
+            return $('.x').removeClass(['y', 'z'])[0].classList.length === 1 ? 'OK' : 'FAIL';
+        },
+        'add/remove/toggle class - function': function() {
+            document.querySelector('#test-area').innerHTML = '<div class="x y"></div>';
+            return $('.x').toggleClass(function(i){return 'y z';})[0].className === 'x z' ? 'OK' : 'FAIL';
+        },
+        'after/before - ...content': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div><div id="z"></div></div><div id="a"></div><div id="b"></div><div id="c"></div><div class="d"></div><div class="d"></div>';
+            $('#y,#z').after($('#a'), document.querySelector('#b'), document.getElementById('c'), document.querySelectorAll('.d'), '<div id="e"></div>');
+            return ($('#x')[0].children.length === 14 && $('#test-area')[0].children.length === 1) ? 'OK' : 'FAIL';
+        },
+        'after/before - function': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div><div id="z"></div></div><div id="c"></div><div class="d"></div><div class="d"></div>';
+            $('#y,#z').before(function(i) {return i === 0 ? document.getElementById('c') : document.querySelectorAll('.d'); });
+            return ($('#x')[0].children.length === 5 && $('#test-area')[0].children.length === 1) ? 'OK' : 'FAIL';
+        },
+        'insertAfter/insertBefore': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div><div id="d"></div></div><div id="u"></div><div id="v"></div><div id="w"></div><div class="y"></div><div class="y"></div>';
+            $('#a').insertAfter('#u');
+            $('#b').insertBefore(document.querySelector('#v'));
+            $('#c').insertAfter($('#w'));
+            $('#d').insertBefore(document.querySelectorAll('.y'));
+            return ($('#x')[0].children.length === 0 && $('#test-area')[0].children.length === 11) ? 'OK' : 'FAIL';
+        },
+        'append/prepend - ...content': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div><div id="z"></div></div><div id="a"></div><div id="b"></div><div id="c"></div><div class="d"></div><div class="d"></div>';
+            $('#y,#z').append($('#a'), document.querySelector('#b'), document.getElementById('c'), document.querySelectorAll('.d'), '<div id="e"></div>');
+            return ($('#y')[0].children.length === 6 && $('#z')[0].children.length === 6 && $('#test-area')[0].children.length === 1) ? 'OK' : 'FAIL';
+        },
+        'append/prepend - function': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div><div id="z"></div></div><div id="c"></div><div class="d"></div><div class="d"></div>';
+            $('#y,#z').prepend(function(i) {return i === 0 ? document.getElementById('c') : document.querySelectorAll('.d'); });
+            return ($('#y')[0].children.length === 1 && $('#z')[0].children.length === 2 && $('#test-area')[0].children.length === 1) ? 'OK' : 'FAIL';
+        },
+        'appendTo/prependTo': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div><div id="d"></div></div><div id="u"></div><div id="v"></div><div id="w"></div><div class="y"></div><div class="y"></div>';
+            $('#a').appendTo('#u');
+            $('#b').prependTo(document.querySelector('#v'));
+            $('#c').appendTo($('#w'));
+            $('#d').prependTo(document.querySelectorAll('.y'));
+            return ($('#u')[0].children.length === 1 && $('#v')[0].children.length === 1 && $('#w')[0].children.length === 1 && $('.y')[0].children.length === 1 && $('.y')[1].children.length === 1 && $('#x')[0].children.length === 0) ? 'OK' : 'FAIL'; 
+        },
+        'replaceWith - newContent': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a">A</div></div><div id="b">B</div><div id="c">C</div><div class="d">D1</div><div class="d">D2</div><div id="e">E</div>';
+            $('#a').replaceWith(document.getElementById('b'));
+            $('#b').replaceWith('<div id="y">Y</div>');
+            $('#y').replaceWith(document.querySelector('#c'));
+            $('#c').replaceWith(document.querySelectorAll('.d'));
+            $('.d').replaceWith($('#e'));
+            return ($('#x')[0].children.length === 2 && $('#x')[0].children[1].textContent === 'E') ?  'OK' : 'FAIL';
+        },
+        'replaceWith - function': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a">A</div><div id="b">B</div></div><div id="c">C</div><div id="d">D</div>';
+            $('#a,#b').replaceWith(function(i){ return i===0 ? $('#c') : document.querySelectorAll('#d'); });
+            return ($('#x')[0].children.length === 2 && $('#x')[0].children[0].textContent === 'C' && $('#x')[0].children[1].textContent === 'D') ?  'OK' : 'FAIL';
+        },
+        'replaceAll': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a">A</div></div><div id="b">B</div><div id="c">C</div><div class="d">D1</div><div class="d">D2</div><div id="e">E</div>';
+            $('#b').replaceAll('#a');
+            $('#c').replaceAll(document.querySelector('#b'));
+            $('.d').replaceAll($('#c'));
+            $('#e').replaceAll(document.querySelectorAll('.d'));
+            return ($('#x')[0].children.length === 2 && $('#x')[0].children[1].textContent === 'E') ?  'OK' : 'FAIL';
+        },
+        '* event - handler & trigger': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $('#x').click(function(){$('#x')[0].textContent = 'test';});
+            $('#x').trigger('click');
+            return $('#x')[0].textContent === 'test' ?  'OK' : 'FAIL';
+        },
+        '* event - data + handler & run': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $('#x').click({testvar: 'test'}, function(event){$('#x')[0].textContent = event.data.testvar;});
+            $('#x').click();
+            return $('#x')[0].textContent === 'test' ?  'OK' : 'FAIL';
+        },
+        'hover - in & out': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $('#x').hover(function(){$('#x')[0].textContent += 'aaa';}, function(){$('#x')[0].textContent += 'bbb';});
+            $('#x').trigger('mouseenter');
+            $('#x').trigger('mouseleave');
+            return $('#x')[0].textContent === 'aaabbb' ?  'OK' : 'FAIL';
+        },
+        'on one event - with selector - without data - handler & run': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y">Y</div>';
+            $('#x').on('click', '#a', function(event){$('#y')[0].textContent = event.target.textContent;});
+            $('#x')[0].innerHTML = '<div id="a">A</div><div id="b">B</div>';
+            $('#a').click();
+            $('#b').click();
+            return $('#y')[0].textContent === 'A' ?  'OK' : 'FAIL';
+        },
+        'on multi namespace event - without selector - with data - handler - use capture & run': function() {
+            if (window.jQuery) return 'SKIP - use capture param is jQRe only';
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div></div><div id="z"></div>';
+            $('#x').on('click.test click.testtwo', {testvar: '|var,'}, function(event){$('#z')[0].textContent += event.data.testvar + event.namespace + event.eventPhase;}, true);
+            $('#y').click();
+            $('#y').trigger('click.test');
+            $('#y').trigger('click.testtwo');
+            return $('#z')[0].textContent === '|var,test1|var,testtwo1' ?  'OK' : 'FAIL';
+        },
+        'on events with handlers - without selector - without data & run': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="z"></div>';
+            $('#x').on({
+                'click.test.test2': function(event){$('#z')[0].textContent += event.namespace;},
+                'click': function(event){$('#z')[0].textContent += event.type;}
+            });
+            $('#x').trigger('click.test.test2');
+            $('#x').click();
+            return $('#z')[0].textContent === 'test.test2click' ?  'OK' : 'FAIL';
+        },
+        'off one event - without selector - without handler - use capture': function() {
+            if (window.jQuery) return 'SKIP - use capture param is jQRe only';
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div>';
+            $('#x').on('click', function(){$('#x')[0].textContent = 'test';}, true);
+            $('#x').off('click', true);
+            $('#x').click();
+            return $('#x')[0].textContent === 'X' ?  'OK' : 'FAIL';
+        },
+        'off one event - with selector - without handler': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y">Y</div>';
+            $('#x').on('click', '#a', function(){$('#y')[0].textContent = event.target.textContent;});
+            $('#x')[0].innerHTML = '<div id="a">A</div>';
+            $('#x').off('click', '#a');
+            $('#a').click();
+            return $('#y')[0].textContent === 'Y' ?  'OK' : 'FAIL';
+        },
+        'off multi namespace event - without selector - with handler': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div>';
+            $('#x').on('click.test click.testtwo click.testthree', function(event){$('#y')[0].textContent += event.namespace;});
+            $('#x').off('click.test click.testtwo').trigger('click.test').trigger('click.testtwo').trigger('click.testthree');
+            return $('#y')[0].textContent === 'testthree' ?  'OK' : 'FAIL';
+        },
+        'off events with handlers - without selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div>';
+            let temp1 = function(event){$('#y')[0].textContent += event.namespace ? event.namespace : event.type;}
+            $('#x').on({
+                'click.testtwo': temp1,
+                'click.test': temp1,
+                'click': temp1
+            });
+            $('#x').off({
+                'click.test': temp1,
+                'click': temp1
+            }).trigger('click').trigger('click.test').trigger('click.testtwo');
+            return $('#y')[0].textContent === '' ?  'OK' : 'FAIL';
+        },
+        'off all element events': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y">Y</div>';
+            let temp1 = function(event){$('#y')[0].textContent += event.namespace ? event.namespace : event.type;}
+            $('#x').on({
+                'click.testtwo': temp1,
+                'click.test': temp1,
+                'click': temp1
+            });
+            $('#x').off().trigger('click').trigger('click.test').trigger('click.testtwo');
+            return $('#y')[0].textContent === 'Y' ?  'OK' : 'FAIL';
+        },
+        'children': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div><div id="z"></div></div>';
+            return $('#x').children().length === 2 ? 'OK' : 'FAIL';
+        },
+        'children - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"></div><div class="y"></div><div id="z"></div></div>';
+            return $('#x').children('.y').length === 2 ? 'OK' : 'FAIL';
+        },
+        'parent': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div><div id="z"></div></div><div id="a"><div id="b"></div></div>';
+            return $('#y,#z,#b').parent().length === 2 ? 'OK' : 'FAIL';
+        },
+        'parent - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" class="a"><div id="y"></div><div id="z"></div></div><div id="a"><div id="b"></div></div>';
+            return $('#y,#z,#b').parent('.a').length === 1 && $('#y,#z,#b').parent('.b').length === 0 ? 'OK' : 'FAIL';
+        },
+        'clone': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"></div></div>';
+            $('.y').clone().appendTo($('#x'));
+            return $('#x')[0].children.length === 2 ? 'OK' : 'FAIL';
+        },
+        'clone - with events': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"></div></div><div id="z"></div>';
+            $('.y').click(function(){$('#z')[0].textContent += 'Z';}).clone(true, false).appendTo($('#x'));
+            $('.y').click();
+            return $('#z')[0].textContent === 'ZZ' ? 'OK' : 'FAIL';
+        },
+        'clone - deep': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"><div class="yy"></div></div></div><div id="z"></div>';
+            $('.y').clone(false, true).appendTo($('#x'));
+            return $('.y').children().length === 2 ? 'OK' : 'FAIL';
+        },
+        'clone - with events - deep': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"><div class="yy"></div></div></div><div id="z"></div>';
+            $('.yy').click(function(){$('#z')[0].textContent += 'Z';}).parent().clone(true).appendTo($('#x'));
+            $('.yy').click();
+            return $('#z')[0].textContent === 'ZZ' ? 'OK' : 'FAIL';
+        },
+        'closest - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"></div></div>';
+            return $('#y').closest('#x').length == 1 ? 'OK' : 'FAIL';
+        },
+        'closest - selector - context': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y"><div id="z"></div></div></div>';
+            return $('#z').closest('#x', $('#y')[0]).length === 0 ? 'OK' : 'FAIL';
+        },
+        'css - property': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" style="padding-left: 13px;"></div>';
+            return $('#x').css('padding-left') === '13px' ? 'OK' : 'FAIL';
+        },
+        'css - properties': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" style="padding-left: 13px; margin-right: 3em;"></div>';
+            return JSON.stringify($('#x').css(['padding-left', 'margin-right'])) === JSON.stringify({'padding-left': '13px', 'margin-right': '48px'}) ? 'OK' : 'FAIL';},
+        'css - property - value': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $('#x').css('padding-left', 13);
+            return document.defaultView.getComputedStyle($('#x')[0])['paddingLeft'] === '13px' ? 'OK' : 'FAIL';
+        },
+        'css - property - function': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $('#x').css('padding-left', function(){return 13;});
+            return document.defaultView.getComputedStyle($('#x')[0])['paddingLeft'] === '13px' ? 'OK' : 'FAIL';},
+        'css - properties value': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div>';
+            $('#x,#y').css({'padding-left': 13, 'marginRight': '3em'});
+            return (document.defaultView.getComputedStyle($('#x')[0])['paddingLeft'] === '13px' &&
+                document.defaultView.getComputedStyle($('#y')[0])['marginRight'] === '48px') ? 'OK' : 'FAIL';
+        },
+        'attr - attribute': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" name="y" id="x" />';
+            return $('#x').attr('name') === 'y' ? 'OK' : 'FAIL';
+        },
+        'attr - attribute - value': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return $('#x').attr('name', 'y')[0].name === 'y' ? 'OK' : 'FAIL';
+        },
+        'attr - attribute - function': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return $('#x').attr('name', function(i){return 'y' + i;})[0].name === 'y0' ? 'OK' : 'FAIL';
+        },
+        'attr - attributes value': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return $('#x').attr({name: 'y', class: 'z'})[0].name === 'y' && $('#x')[0].className === 'z' ? 'OK' : 'FAIL';
+        },
+        'data': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" data-a="X" data-b="Y"></div>';
+            return JSON.stringify(Object.fromEntries(Object.entries($('#x').data()).sort())) === JSON.stringify({a:'X',b:'Y'}) ? 'OK' : 'FAIL';
+        },
+        'data - key': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" data-a="X"></div>';
+            return $('#x').data('a') === 'X' ? 'OK' : 'FAIL';
+        },
+        'data - key - value': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            return $('#x').data('a', 'X').data('a') === 'X' ? 'OK' : 'FAIL';
+        },
+        'data - keys value': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            return JSON.stringify($('#x').data({a: 'X', b: 'Y'}).data()) === JSON.stringify({a:'X',b:'Y'}) ? 'OK' : 'FAIL';
+        },
+        'prop - property': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" disabled />';
+            return $('#x').prop('disabled') === true ? 'OK' : 'FAIL';
+        },
+        'prop - property - value': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return $('#x').prop('disabled', true)[0].disabled === true ? 'OK' : 'FAIL';
+        },
+        'prop - property - function': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return $('#x').prop('disabled', function(i){return i===0;})[0].disabled === true ? 'OK' : 'FAIL';
+        },
+        'prop - properties value': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return ($('#x').prop({disabled: true, required: true})[0].disabled && $('#x')[0].required) === true ? 'OK' : 'FAIL';
+        },
+        'val': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" value="X" />';
+            return $('#x').val() === 'X' ? 'OK' : 'FAIL';
+        },
+        'val - value': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return $('#x').val('X')[0].value === 'X' ? 'OK' : 'FAIL';
+        },
+        'val - function': function() {
+            document.querySelector('#test-area').innerHTML = '<input type="text" id="x" />';
+            return $('#x').val(function(i){return i+2;})[0].value === '2' ? 'OK' : 'FAIL';
+        },
+        'val - select multiple': function() {
+            document.querySelector('#test-area').innerHTML = '<select id="x" multiple><option value="a"></option><option value="b"></option><option value="c"></option></select>';
+            return JSON.stringify($('#x').val(['a', 'c']).val()) === JSON.stringify(['a', 'c']) ? 'OK' : 'FAIL';
+        },
+        'removeAttr / removeData / removeProp - name': function() {
+            if (window.jQuery) return 'SKIP - in jQRe .data() and .removeData() use element dataset instead of internal storage object';
+            document.querySelector('#test-area').innerHTML = '<input id="x" name="a" data-a="1" disabled>';
+            $('#x').removeAttr('name').removeData('a').removeProp('disabled');
+            return !$('#x').attr('name') && !$('#x').data('a') && !$('#x').prop('disabled') ? 'OK' : 'FAIL';
+        },
+        'removeData - list': function() {
+            if (window.jQuery) return 'SKIP - in jQRe .data() and .removeData() use element dataset instead of internal storage object';
+            document.querySelector('#test-area').innerHTML = '<input id="x" data-a="1" data-b="2" data-c="3">';
+            $('#x').removeData('a c'); let i = 0;
+            for (let j in $('#x').data()) i++;
+            return i === 1 ? 'OK' : 'FAIL';
+        },
+        'each': function() {
+            document.querySelector('#test-area').innerHTML = '<select id="x"><option value="a"></option><option value="b"></option><option value="c"></option></select>';
+            $('#x option').each(function(){this.textContent=this.value;});
+            return $('#x').children()[1].textContent = 'B' ? 'OK' : 'FAIL';
+        },
+        'empty': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X<div id="y"></div></div>';
+            return $('#x').empty()[0].outerHTML === '<div id="x"></div>' ? 'OK' : 'FAIL';
+        },
+        'eq': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y">Y</div><div id="z">Z</div></div>';
+            return $('#x > div').eq(1)[0].textContent === 'Z' ? 'OK' : 'FAIL';
+        },
+        'even': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y">Y</div><div id="z">Z</div></div>';
+            return $('#x > div').even().length === 1 && $('#x > div').even()[0].textContent === 'Y' ? 'OK' : 'FAIL';
+        },
+        'odd': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y">Y</div><div id="z">Z</div></div>';
+            return $('#x > div').odd().length === 1 && $('#x > div').odd()[0].textContent === 'Z' ? 'OK' : 'FAIL';
+        },
+        'filter - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
+            return $('#x,#y,#z').filter(':last-child')[0].textContent === 'Z' ? 'OK' : 'FAIL';
+        },
+        'filter - function': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
+            return $('#x,#y,#z').filter(function(i){return i>0})[0].textContent === 'Y' ? 'OK' : 'FAIL';
+        },
+        'filter - element': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
+            return $('#x,#y,#z').filter($('#y')[0])[0].textContent === 'Y' ? 'OK' : 'FAIL';
+        },
+        'filter - elements': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
+            return $('#x,#y,#z').filter(document.querySelectorAll('#y,#z'))[0].textContent === 'Y' ? 'OK' : 'FAIL';
+        },
+        'filter - selection': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
+            return $('#x,#y,#z').filter($('#y,#z'))[0].textContent === 'Y' ? 'OK' : 'FAIL';
+        },
+        'find - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div class="y">A</div><div id="x"><div class="y">B</div></div>';
+            return $('#x').find('.y')[0].textContent === 'B' ? 'OK' : 'FAIL';
+        },
+        'find - selector - only first': function() {
+            if (window.jQuery) return 'SKIP - only first param is jQRe only';
+            document.querySelector('#test-area').innerHTML = '<div class="y">A</div><div id="x"><div class="y">B</div><div class="y">C</div></div>';
+            return $('#x').find('.y', true).length === 1 ? 'OK' : 'FAIL';
+        },
+        'first': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y">Y</div><div id="z">Z</div></div>';
+            return $('#x > div').first()[0].textContent === 'Y' ? 'OK' : 'FAIL';
+        },
+        'last': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="y">Y</div><div id="z">Z</div></div>';
+            return $('#x > div').last()[0].textContent === 'Z' ? 'OK' : 'FAIL';
+        },
+        'get - positive index': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div></div>';
+            return $('#x > *').get(2) === $('#c')[0] ? 'OK' : 'FAIL';
+        },
+        'get - negative index': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div></div>';
+            return $('#x > *').get(-3) === $('#a')[0] ? 'OK' : 'FAIL';
+        },
+        'get - all': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div></div>';
+            return JSON.stringify($('#x > *').get()) === JSON.stringify([document.querySelector('#a'), document.querySelector('#b'), document.querySelector('#c')]) ? 'OK' : 'FAIL';
+        },
+        'has - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="a"></div></div><div id="y"><div class="b"></div></div><div id="z"><div class="b"></div></div>';
+            return $('#x,#y,#z').has('.b').length === 2 ? 'OK' : 'FAIL';
+        },
+        'has - element': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="a"></div></div><div id="y"><div class="b"></div></div><div id="z"><div class="b"></div></div>';
+            return $('#x,#y,#z').has(document.querySelector('.a'))[0].id === 'x' ? 'OK' : 'FAIL';
+        },
+        'hasClass': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" class="a b d"></div>';
+            return ($('#x').hasClass('a') ? 1 : 0) + ($('#x').hasClass('b') ? 1 : 0) + ($('#x').hasClass('c') ? 1 : 0) === 2 ? 'OK' : 'FAIL';
+        },
+        'height / innerHeight / outerHeight / outerHeight include margin': function() {
+            if (window.jQuery) return 'SKIP - jQuery result depends on box-sizing property, jQRe is consistent';
+            document.querySelector('#test-area').innerHTML = '<div id="x" style="display: inner-block; box-sizing: border-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="y" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>';
+            return $('#x').height() === 25 && $('#x').innerHeight() === 35 && $('#x').outerHeight() === 39 && $('#x').outerHeight(true) === 53 &&
+                $('#y').height() === 25 && $('#y').innerHeight() === 35 && $('#y').outerHeight() === 39 && $('#y').outerHeight(true) === 53 ? 'OK' : 'FAIL';
+        },
+        'width / innerWidth / outerWidth / outerWidth include margin': function() {
+            if (window.jQuery) return 'SKIP - jQuery result depends on box-sizing property, jQRe is consistent';
+            document.querySelector('#test-area').innerHTML = '<div id="x" style="display: inner-block; box-sizing: border-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="y" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>';
+            return $('#x').width() === 25 && $('#x').innerWidth() === 35 && $('#x').outerWidth() === 39 && $('#x').outerWidth(true) === 53 &&
+                $('#y').width() === 25 && $('#y').innerWidth() === 35 && $('#y').outerWidth() === 39 && $('#y').outerWidth(true) === 53 ? 'OK' : 'FAIL';
+        },
+        'height / innerHeight / outerHeight / outerHeight include margin - value': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="a" style="display: inner-block; box-sizing: border-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="b" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="c" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="d" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="e" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="f" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="g" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="h" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>';
+                $('#a').height(100);
+                $('#b').innerHeight('100px');
+                $('#c').outerHeight(100);
+                $('#d').outerHeight('100px', true);
+                $('#e').height('1in');
+                $('#f').innerHeight(100);
+                $('#g').outerHeight('100px');
+                $('#h').outerHeight(100, true);
+            return $('#a').height() === 100 && $('#b').height() === 90 && $('#c').height() === 86 && $('#d').height() === 72 &&
+                $('#e').height() === 96 && $('#f').height() === 90 && $('#g').height() === 86 && $('#h').height() === 72 ? 'OK' : 'FAIL';
+        },
+        'width / innerWidth / outerWidth / outerWidth include margin - value': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="a" style="display: inner-block; box-sizing: border-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="b" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="c" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="d" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="e" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="f" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="g" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="h" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>';
+                $('#a').width(100);
+                $('#b').innerWidth('100px');
+                $('#c').outerWidth(100);
+                $('#d').outerWidth('100px', true);
+                $('#e').width('1in');
+                $('#f').innerWidth(100);
+                $('#g').outerWidth('100px');
+                $('#h').outerWidth(100, true);
+            return $('#a').width() === 100 && $('#b').width() === 90 && $('#c').width() === 86 && $('#d').width() === 72 &&
+                $('#e').width() === 96 && $('#f').width() === 90 && $('#g').width() === 86 && $('#h').width() === 72 ? 'OK' : 'FAIL';
+        },
+        'height / innerHeight / outerHeight / outerHeight include margin - function': function() {
+            if (window.jQuery) return 'SKIP - jQuery result depends on box-sizing property, jQRe is consistent';
+            document.querySelector('#test-area').innerHTML = '<div id="a" style="display: inner-block; box-sizing: border-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="b" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="c" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="d" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="e" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="f" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="g" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="h" style="display: inner-block; box-sizing: content-box; width: 10px; height: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>';
+                $('#a').height(function(i,h){return h*4;});
+                $('#b').innerHeight(function(i,h){return h*4 + 'px';});
+                $('#c').outerHeight(function(i,h){return h*4;});
+                $('#d').outerHeight(function(i,h){return h*4 + 'px';}, true);
+                $('#e').height(function(i,h){return '1in';});
+                $('#f').innerHeight(function(i,h){return h*4;});
+                $('#g').outerHeight(function(i,h){return h*4 + 'px';});
+                $('#h').outerHeight(function(i,h){return h*4;}, true);
+            return $('#a').height() === 100 && $('#b').height() === 130 && $('#c').height() === 142 && $('#d').height() === 184 &&
+                $('#e').height() === 96 && $('#f').height() === 130 && $('#g').height() === 142 && $('#h').height() === 184 ? 'OK' : 'FAIL';
+        },
+        'width / innerWidth / outerWidth / outerWidth include margin - function': function() {
+            if (window.jQuery) return 'SKIP - jQuery result depends on box-sizing property, jQRe is consistent';
+            document.querySelector('#test-area').innerHTML = '<div id="a" style="display: inner-block; box-sizing: border-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="b" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="c" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="d" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="e" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="f" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="g" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>' +
+                '<div id="h" style="display: inner-block; box-sizing: content-box; height: 10px; width: 25px; padding: 5px; margin: 7px; border: 2px solid black;"></div>';
+                $('#a').width(function(i,w){return w*4;});
+                $('#b').innerWidth(function(i,w){return w*4 + 'px';});
+                $('#c').outerWidth(function(i,w){return w*4;});
+                $('#d').outerWidth(function(i,w){return w*4 + 'px';}, true);
+                $('#e').width(function(i,w){return '1in';});
+                $('#f').innerWidth(function(i,w){return w*4;});
+                $('#g').outerWidth(function(i,w){return w*4 + 'px';});
+                $('#h').outerWidth(function(i,w){return w*4;}, true);
+            return $('#a').width() === 100 && $('#b').width() === 130 && $('#c').width() === 142 && $('#d').width() === 184 &&
+                $('#e').width() === 96 && $('#f').width() === 130 && $('#g').width() === 142 && $('#h').width() === 184 ? 'OK' : 'FAIL';
+        },
+        'show / hide / toggle': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" style="display: none;"></div><div id="y" style="display: inline-block;"></div><div id="z" style="display: table;"></div>';
+            $('#x').show();
+            $('#y').hide();
+            $('#z').toggle();
+            return $('#x')[0].style.display === '' && $('#y')[0].style.display === 'none' && $('#y').show()[0].style.display === 'inline-block' &&
+                $('#z')[0].style.display === 'none' && $('#z').toggle()[0].style.display === 'table' ? 'OK' : 'FAIL';
+        },
+        'html': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
+            return $('#x').html() === 'X' && $('#y').html('<p>P</p><p>Q</p>').html() === '<p>P</p><p>Q</p>' && $('#z').html(function(){return '<p>P</p>'}).html() === '<p>P</p>' ? 'OK' : 'FAIL';
+        },
+        'text': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
+            return $('#x').text() === 'X' && $('#y').text('P').text() === 'P' && $('#z').text(function(){return 'P'}).text() === 'P' ? 'OK' : 'FAIL';
+        },
+        'index': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y" class="a"></div><div id="z"></div>';
+            return $('#x,#y,#z').index() === 0 && $('#x,#y,#z').index(document.getElementsByClassName('a')[0]) == 1 && $('#x,#y,#z').index($('#z')) === 2 ? 'OK' : 'FAIL';
+        },
+        'is': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" class="a"></div><div id="y"></div>';
+            return $('#x').is('.a') && $('#x').is($('#x')) && $('#x').is(document.querySelector('#x')) && !$('#x').is(function(){return false}) && !$('#x').is('.b') && !$('#x').is($('#y')) ? 'OK' : 'FAIL';
+        },
+        'ajax - url - beforeSend success complete': async function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
+            $.ajax('https://httpbin.org/anything', {
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#x').text($('#x').text() + 'B');
+                },
+                success: function() {
+                    $('#x').text($('#x').text() + 'C');
+                },
+                complete: function() {
+                    $('#x').text($('#x').text() + 'D');
+                }
+            });
+            await sleep(500);
+            return $('#x')[0].textContent === 'ABCD' ? 'OK' : 'FAIL';
+        },
+        'ajax - url error statusCode': async function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
+            $.ajax({
+                url: 'https://httpbin.org/status/404',
+                statusCode: {
+                    404: function() {
+                        $('#x').text($('#x').text() + 'C');
+                    }
+                },
+                error: function() {
+                    $('#x').text($('#x').text() + 'B');
+                },
+                success: function(data) {
+                    $('#x').text($('#x').text() + 'D');
+                },
+                complete: function() {
+                    $('#x').text($('#x').text() + 'E');
+                }
+            });
+            await sleep(500);
+            return $('#x')[0].textContent === 'ABCE' ? 'OK' : 'FAIL';
+        },
+        'ajax - url method data contentType headers cache': async function() {
+            if (window.jQuery) return 'SKIP - cache option has different use in jQRe';
+            document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
+            $.ajax('https://httpbin.org/post', {
+                contentType: 'text/plain',
+                headers: {
+                    Test: 'value'
+                },
+                method: 'POST',
+                data: {
+                    key: 'val',
+                },
+                cache: 'no-store',
+                success: function(data, response) {
+                    $('#x').text($('#x').text() + 'B' + data.data + data.headers['Content-Type'] + data.headers['Test'] + data.headers['Cache-Control']);
+                }
+            });
+            await sleep(500);
+            return $('#x')[0].textContent === 'ABkey=valtext/plainvalueno-cache' ? 'OK' : 'FAIL';
+        },
+        'ajax - url username password async': async function() {
+            if (window.jQuery) return 'SKIP - sync requests work different in jQRe';
+            document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
+            await $.ajax('https://httpbin.org/basic-auth/user/pass', {
+                async: false,
+                username: 'user',
+                password: 'pass',
+                success: function(data, response) {
+                    $('#x').text($('#x').text() + 'B');
+                }
+            });
+            return $('#x')[0].textContent === 'AB' ? 'OK' : 'FAIL';
+        },
+        'ajax get - data success': async function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
+            $.get('https://httpbin.org/get', {x: 'y'}, function(data) {
+                $('#x').text($('#x').text() + 'B' + data.args.x);
+            });
+            await sleep(500);
+            return $('#x')[0].textContent === 'ABy' ? 'OK' : 'FAIL';
+        },
+        'ajax getJSON - success': async function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
+            $.getJSON('https://httpbin.org/get', function(data, response) {
+                $('#x').text($('#x').text() + 'B' + data.headers.Host);
+            });
+            await sleep(500);
+            return $('#x')[0].textContent === 'ABhttpbin.org' ? 'OK' : 'FAIL';
+        },
+        'ajax post - data success dataType': async function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
+            $.post('https://httpbin.org/post', {x: 'y'}, function(data) {
+                $('#x').text($('#x').text() + 'B' + data.form.x);
+            }, 'json');
+            await sleep(500);
+            return $('#x')[0].textContent === 'ABy' ? 'OK' : 'FAIL';
+        },
+        'ajax load - selector complete': async function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $('#x').load('https://httpbin.org/html h1', function() {
+                $('#x').html($('#x').html() + '<p>B</p>');
+            });
+            await sleep(500);
+            return $('#x')[0].innerHTML === '<h1>Herman Melville - Moby-Dick</h1><p>B</p>' ? 'OK' : 'FAIL';
+        },
+        'next': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" class="a"></div><div id="y" class="b"></div><div id="z" class="c"></div>';
+            return $('#x').next()[0].id === 'y' ? 'OK' : 'FAIL';
+        },
+        'next - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" class="a"></div><div id="y" class="b"></div><div id="z" class="c"></div>';
+            return $('#x').next('.c').length === 0 ? 'OK' : 'FAIL';
+        },
+        'prev': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" class="a"></div><div id="y" class="b"></div><div id="z" class="c"></div>';
+            return $('#z').prev()[0].id === 'y' ? 'OK' : 'FAIL';
+        },
+        'prev - selector': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" class="a"></div><div id="y" class="b"></div><div id="z" class="c"></div>';
+            return $('#z').prev('.a').length === 0 ? 'OK' : 'FAIL';
+        },
+        'not': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div><div id="d"></div><div id="e"></div></div>';
+            return $('#x > *').not(':nth-child(2n)').length === 3 && $('#x > *').not(document.querySelector('#b')).length === 4 &&
+                $('#x > *').not(document.querySelectorAll('#b,#c')).length === 3 && $('#x > *').not($('#d,#e')).length === 3 &&
+                $('#x > *').not(function(i){return i%2===1;}).length === 3 ? 'OK' : 'FAIL';
+        },
+        'remove': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div class="c"></div><div class="c"></div></div>';
+            $('#a').remove();
+            $('#x *').remove('.c');
+            return $('#x *').length === 1 && $('#x *')[0].id === 'b' ? 'OK' : 'FAIL';
+        },
+        'scrollLeft / scrollTop': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x" style="overflow: scroll; display: inline-block; width: 100px; height: 100px;"><div id="y" style="display: inline-block; width: 1000px; height: 1000px;"></div></div>';
+            $('#x').parent().css({display: ''});
+            $('#x').scrollLeft(200).scrollTop('300');
+            let sx = $('#x')[0].scrollLeft;
+            let sy = $('#x').scrollTop();
+            $('#x').parent().css({display: 'none'});
+            return sx === 200 && sy === 300 ? 'OK' : 'FAIL';
+        },
+        'serializeArray': function() {
+            if (window.jQuery) return 'SKIP - jQRe looks for form elements in children too';
+            document.querySelector('#test-area').innerHTML = '<div id="x">' +
+                '<input id="a" name="a" type="text" value="a1">' +
+                '<select id="b" name="b"><option value="b1"></option><option value="b2" selected></option></select>' +
+                '<div><input id="f" name="f" type="text" value="f1" disabled><textarea id="c" name="c">c1</textarea><input id="d" type="text" value="d1"><input id="e" type="text" name="e"></div>' +
+                '<select id="g" name="g" multiple><option value="g1"></option><option value="g2" selected><option value="g3" selected></option></select>' +
+                '<input id="h1" name="h" type="checkbox" checked value="h1"><input id="h2" name="h" type="checkbox" value="h2"><input id="h3" name="h" type="checkbox" checked value="h3"><input id="i" name="i" type="radio" checked value="i1">' +
+                '</div>';
+            return JSON.stringify($('#x > *').serializeArray()) === '[{"name":"a","value":"a1"},{"name":"b","value":"b2"},{"name":"c","value":"c1"},{"name":"e","value":""},{"name":"g","value":"g2"},{"name":"g","value":"g3"},{"name":"h","value":"h1"},{"name":"h","value":"h3"},{"name":"i","value":"i1"}]' ? 'OK' : 'FAIL';
+        },
+        'serialize': function() {
+            if (window.jQuery) return 'SKIP - jQRe looks for form elements in children too';
+            document.querySelector('#test-area').innerHTML = '<div id="x">' +
+                '<input id="a" name="a" type="text" value="a1">' +
+                '<select id="b" name="b"><option value="b1"></option><option value="b2" selected></option></select>' +
+                '<div><input id="f" name="f" type="text" value="f1" disabled><textarea id="c" name="c">c1</textarea><input id="d" type="text" value="d1"><input id="e" type="text" name="e"></div>' +
+                '<select id="g" name="g" multiple><option value="g1"></option><option value="g2" selected><option value="g3" selected></option></select>' +
+                '<input id="h1" name="h" type="checkbox" checked value="h1"><input id="h2" name="h" type="checkbox" value="h2"><input id="h3" name="h" type="checkbox" checked value="h3"><input id="i" name="i" type="radio" checked value="i1">' +
+                '</div>';
+            return $('#x > *').serialize() === 'a=a1&b=b2&c=c1&e=&g[]=g2&g[]=g3&h[]=h1&h[]=h3&i=i1' ? 'OK' : 'FAIL';
+        },
+        'size': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div></div><div></div><div></div></div>';
+            return $('#x > *').length === 3 ? 'OK' : 'FAIL';
+        },
+        'slice': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div></div><div></div><div>Y</div></div>';
+            return $('#x > *').slice(1, 3).length === 2 && $('#x > *').slice(1, 3).last()[0].textContent === 'Y' ? 'OK' : 'FAIL';
+        },
+        'toArray': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div></div>';
+            return $('#x > *').toArray().length === 3 && Array.isArray($('#x > *').toArray()) ? 'OK' : 'FAIL';
+        },
+        'unique': function() {
+            if (window.jQuery) return 'SKIP - new jQRe function';
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div><div id="c"></div></div>';
+            return $('#x > *').add('#b').unique().length === 3 ? 'OK' : 'FAIL';
+        },
+        'wrap': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div><div id="b"></div></div><div id="y"><div id="c"></div><div id="d"></div></div>';
+            $('#x > *').wrap("<div class='new'></div>");
+            $('#y > *').wrap(function(){return "<div class='new2'></div>";});
+            return $('#x > .new').length === 2 && $('#x > .new').last().children().length === 1 && $('#y > .new2').length === 2 && $('#y > .new2').last().children().length === 1 ? 'OK' : 'FAIL';
+        },
+        '$.contains': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a"></div></div><div id="y"><div id="b"></div></div>';
+            return $.contains(document.querySelector('#x'), document.querySelector('#a')) && !$.contains(document.querySelector('#x'), document.querySelector('#b')) ? 'OK' : 'FAIL';
+        },
+        '$.data': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $.data(document.querySelector('#x'), 'test', 'value');
+            return $.data(document.querySelector('#x'), 'test') === 'value' && JSON.stringify($.data(document.querySelector('#x'))) === '{"test":"value"}' ? 'OK' : 'FAIL';
+        },
+        '$.each': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div id="a">A</div><div id="b">B</div></div><div id="y"></div>';
+            $.each($('#x > *'), function(i,v) {$('#y').text($('#y').text() + v.textContent);});
+            return $('#y')[0].textContent === 'AB' ? 'OK' : 'FAIL';
+        },
+        '$.fn.extend': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div>';
+            $.fn.extend({addTextX: function(t){$(this).first().text($(this).first().text() + t)}});
+            $('#x').addTextX('A');$('#x').addTextX('B');
+            return $('#x')[0].textContent === 'AB' ? 'OK' : 'FAIL';
+        },
+        '$.inArray': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div><div id="z"></div>';
+            return $.inArray(document.querySelector('#y'), $('#x,#y,#z').get()) && $.inArray(document.querySelector('#x'), $('#x,#y,#z').get(), 1) === -1 ? 'OK' : 'FAIL';
+        },
+        '$.isArray': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div><div id="z"></div>';
+            return $.isArray($('#x,#y,#z').get()) && !$.isArray(document.querySelectorAll('#x,#y,#z')) ? 'OK' : 'FAIL';
+        },
+        '$.isEmptyObject': function() {
+            if (window.jQuery) return 'SKIP - in jQRe empty arrays return true';
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div><div id="z"></div>';
+            return !$.isEmptyObject($('#x,#y,#z')) && $.isEmptyObject(document.querySelectorAll('#a,#b,#c')) ? 'OK' : 'FAIL';
+        },
+        '$.isFunction': function() {
+            return !$.isFunction((function(){return 2;})()) && $.isFunction(function(){}) ? 'OK' : 'FAIL';
+        },
+        '$.isNumeric': function() {
+            return !$.isNumeric('0,5') && $.isNumeric('23.78') ? 'OK' : 'FAIL';
+        },
+        '$.isPlainObject': function() {
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div><div id="z"></div>';
+            return !$.isPlainObject($('#x,#y,#z')) && $.isPlainObject({x:2,y:3}) ? 'OK' : 'FAIL';
+        },
+        '$.makeArray': function() {
+            if (window.jQuery) return 'SKIP - in jQRe for objects are only their values are kept';
+            return JSON.stringify($.makeArray({x:2,y:'b'})) === '[2,"b"]' ? 'OK' : 'FAIL';
+        },
+        '$.now': function() {
+            return $.now() === Date.now() ? 'OK' : 'FAIL';
+        },
+        '$.param': function() {
+            if (window.jQuery) return 'SKIP - jQRe looks for form elements in children too';
+            document.querySelector('#test-area').innerHTML = '<div id="x">' +
+                '<input id="a" name="a" type="text" value="a1">' +
+                '<select id="b" name="b"><option value="b1"></option><option value="b2" selected></option></select>' +
+                '<div><input id="f" name="f" type="text" value="f1" disabled><textarea id="c" name="c">c1</textarea><input id="d" type="text" value="d1"><input id="e" type="text" name="e"></div>' +
+                '<select id="g" name="g" multiple><option value="g1"></option><option value="g2" selected><option value="g3" selected></option></select>' +
+                '<input id="h1" name="h" type="checkbox" checked value="h1"><input id="h2" name="h" type="checkbox" value="h2"><input id="h3" name="h" type="checkbox" checked value="h3"><input id="i" name="i" type="radio" checked value="i1">' +
+                '</div>';
+            return $.param($('#x > *').serializeArray()) === 'a=a1&b=b2&c=c1&e=&g[]=g2&g[]=g3&h[]=h1&h[]=h3&i=i1' ? 'OK' : 'FAIL';
+        },
+        '$.parseHTML': function() {
+            return $.parseHTML('<div></div><p></p>').length === 2 ? 'OK' : 'FAIL';
+        },
+        '$.parseJSON': function() {
+            return $.parseJSON('{"x":2,"y":"b"}').y === 'b' ? 'OK' : 'FAIL';
+        }
+    };
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    let r, fail = false;
+    for (let i in tests) {
+        document.querySelector('#test-area').innerHTML = '';
+        r = await tests[i]();
+        if (typeof r === 'string') {
+            if (r === 'OK') {
+                document.querySelector('#test-list').innerHTML += '<li>PASS - ' + i + '</li>';
+            } else if (r.substr(0, 4) === 'SKIP') {
+                document.querySelector('#test-list').innerHTML += '<li><span style="color: darkorange;">SKIP - ' + i + ' - ' + r.substr(7) + '</span></li>';
+            } else {
+                document.querySelector('#test-list').innerHTML += '<li>FAIL - ' + i + '</li>';
+                fail = true;
+                break;
+            }
+        }
+    }
+    if (!fail) {
+        document.querySelector('#test-list').innerHTML += '<li style="list-style: none;"><b>FINISHED SUCCESSFULLY!</b></li>';
+    }-->
+
+<!--})();</script>-->
+
+<!--});</script>-->
+
+        <script>
+(() => {
+    let min = false;
+    let mod = false;
+    let jquery = false;
+    if (window.location.search) {
+        for (const i of window.location.search.substr(1).split('&')) {
+            if (i.split('=')[0] === 'min') {
+                min = true;
+            } else if (i.split('=')[0] === 'mod') {
+                mod = true;
+            } else if (i.split('=')[0] === 'jquery') {
+                jquery = true;
+            }
+        }
+    }
+    if (mod) {
+        let content = document.body.childNodes[7].textContent + "\n" + document.body.childNodes[9].textContent + "\n" + document.body.childNodes[11].textContent;
+        if (!min) {
+            content = content.replace('/modules.min/', '/modules/');
+        }
+        let script = document.createElement('script');
+        script.type = 'module';
+        script.text = content.substr(content.indexOf('>') + 1).replace('</' + 'script>', '');
+        document.body.appendChild(script);
+    } else {
+        let content = document.body.childNodes[5].textContent + "\n" + document.body.childNodes[9].textContent + "\n" + document.body.childNodes[13].textContent;
+        if (!min) {
+            content = content.replace('.full.min.', '.full.');
+        }
+        content = content.split('</' + 'script>');
+        let script1 = document.createElement('script');
+        if (jquery) {
+            script1.src = "https://code.jquery.com/jquery-3.6.0.js";
+        } else {
+            script1.src = content[0].substring(content[0].indexOf('src=') + 5, content[0].indexOf('"', content[0].indexOf('src=') + 6));
+        }
+        document.body.appendChild(script1);
+        let script2 = document.createElement('script');
+        script2.text = content[1].substr(content[1].indexOf('>') + 1);
+        if (jquery) {
+            script2.text = script2.text.replace('var $ = jqre();', '');
+        }
+        setTimeout(function(){document.body.appendChild(script2);}, 1000);
+    }
+})();
+        </script>
+    </body>
+</html>

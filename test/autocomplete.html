@@ -1,0 +1,192 @@
+<html>
+    <head>
+        <title>JQRE autocomplete test</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous">
+        <style>
+            .ui-autocomplete-loading {
+                color: red !important;
+            }
+            a.active {
+                text-decoration: underline;
+            }
+            .ui-autocomplete {
+                border: 1px solid gray;
+                max-height: 75px;
+            }
+            .bg-green {
+                background: lightblue;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container pt-3 pb-3" id="app">
+            <p>Should see in console: create, log(0, widget[Array], instance[Object]), search, response, open, focus, close</p>
+            <div class="row">
+                <div class="col-12 col-md-auto">
+                    <div class="form-group">
+                        <label for="test1">Type</label>
+                        <input type="text" class="form-control" id="test1" placeholder="Autocomplete">
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <p>Test swipe</p>
+            <img id="swipe" src="https://www.cstatic-images.com/car-pictures/maxWidth503/usc90lgc053b01300.png" width="300">
+            <p>Swipe direction: <span id="direction">-</span></p>
+            <hr />
+            <p id="mobile"></p>
+        </div>
+
+        <!--<script src="../jqre.full.min.js"></script>
+        <script>
+var $ = jqre();
+$(document).ready(function(){-->
+
+        <!--<script type="module">
+import {jqre} from '../modules.min/jqre.js';
+(async () => {
+    window.$ = await jqre(['all']);-->
+    
+    <!--function init(source) {
+        $('#test1').autocomplete({
+            allowCustom: false,
+            applyStyle: true,
+            classes: {
+                'ui-autocomplete': '',
+                'ui-autocomplete-input': 'bg-green',
+                'ui-autocomplete-loading': '',
+                'active': ''
+            },
+            autoFocus: true,
+            delay: 0,
+            disabled: false,
+            minLength: 1,
+            position: 'before',
+            source: source,
+            change: function( event, ui ) { console.log('change', event, ui); },
+            close: function( event, ui ) { console.log('close', event, ui); },
+            create: function( event, ui ) { console.log('create', event, ui); },
+            focus: function( event, ui ) { console.log('focus', event, ui); },
+            open: function( event, ui ) { console.log('open', event, ui); },
+            response: function( event, ui ) { console.log('response', event, ui); },
+            search: function( event, ui ) { console.log('search', event, ui); },
+            select: function( event, ui ) { console.log('select', event, ui); },
+            renderItem: function (ul, li) {
+                $(ul).append($('<li data-value="' + li.value + '"><a href="">' + li.label + ' + renderItem</a></li>'));
+            }
+        });
+    }
+    init(function(req, resp) {
+        let data = [
+            "ActionScript",
+            "AppleScript",
+            "Asp",
+            "BASIC",
+            "C",
+            "C++",
+            "Clojure",
+            "COBOL",
+            "ColdFusion",
+            "Erlang",
+            "Fortran",
+            "Groovy",
+            "Haskell",
+            "Java",
+            "JavaScript",
+            "Lisp",
+            "Perl",
+            "PHP",
+            "Python",
+            "Ruby",
+            "Scala",
+            "Scheme"
+        ];
+        setTimeout(function(){resp(data.filter((t) => t.startsWith(req['term'])))}, 50);
+    });
+
+    console.log($('#test1').data("uiAutocomplete"), $('#test1').autocomplete('widget'), $('#test1').autocomplete('instance'));
+    $('#test1').autocomplete('disable');
+    $('#test1').autocomplete('search', 'Clo');
+    $('#test1').autocomplete('enable');
+    $('#test1').autocomplete('search', 'Clo');
+    setTimeout(function(){
+        $('#test1').autocomplete('close');
+        $('#test1').autocomplete('destroy');
+    }, 100);
+
+    setTimeout(function(){init([
+        {value: 'a', label: "ActionScript"},
+        {value: 'b', label: "AppleScript"},
+        {value: 'c', label: "Asp"},
+        "BASIC",
+        "C",
+        "C++",
+        "Clojure",
+        "COBOL",
+        "ColdFusion",
+        "Erlang",
+        "Fortran",
+        "Groovy",
+        "Haskell",
+        "Java",
+        "JavaScript",
+        "Lisp",
+        "Perl",
+        "PHP",
+        "Python",
+        "Ruby",
+        "Scala",
+        "Scheme"
+    ])}, 200);
+
+    // Test swipe
+    $.touchPunch();
+    $('#swipe').swipe(function(direction) {
+        $('#direction').text(direction);
+    });
+    $('#mobile').text('Device: ' + ($.isMobile() ? 'mobile' : 'desktop'));-->
+
+<!--})();</script>-->
+
+<!--});</script>-->
+
+        <script>
+(() => {
+    let min = false;
+    let mod = false;
+    if (window.location.search) {
+        for (const i of window.location.search.substr(1).split('&')) {
+            if (i.split('=')[0] === 'min') {
+                min = true;
+            } else if (i.split('=')[0] === 'mod') {
+                mod = true;
+            }
+        }
+    }
+    if (mod) {
+        let content = document.body.childNodes[5].textContent + "\n" + document.body.childNodes[7].textContent + "\n" + document.body.childNodes[9].textContent;
+        if (!min) {
+            content = content.replace('/modules.min/', '/modules/');
+        }
+        let script = document.createElement('script');
+        script.type = 'module';
+        script.text = content.substr(content.indexOf('>') + 1).replace('</' + 'script>', '');
+        document.body.appendChild(script);
+    } else {
+        let content = document.body.childNodes[3].textContent + "\n" + document.body.childNodes[7].textContent + "\n" + document.body.childNodes[11].textContent;
+        if (!min) {
+            content = content.replace('.full.min.', '.full.');
+        }
+        content = content.split('</' + 'script>');
+        let script1 = document.createElement('script');
+        script1.src = content[0].substring(content[0].indexOf('src=') + 5, content[0].indexOf('"', content[0].indexOf('src=') + 6));
+        document.body.appendChild(script1);
+        let script2 = document.createElement('script');
+        script2.text = content[1].substr(content[1].indexOf('>') + 1);
+        setTimeout(function(){document.body.appendChild(script2);}, 100);
+    }
+})();
+        </script>
+    </body>
+</html>
