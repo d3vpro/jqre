@@ -1134,6 +1134,7 @@ function jqre() {
                 y: -1,
                 t: 0,
                 els: this,
+                currentEl: null,
                 callback: func
             };
             data.start = function(event) {
@@ -1141,6 +1142,7 @@ function jqre() {
                 event.stopPropagation();
                 this.x = event.clientX;
                 this.y = event.clientY;
+                this.currentEl = event.currentTarget;
             }.bind(data);
             data.reset = function() {
                 this.x = -1;
@@ -1175,7 +1177,7 @@ function jqre() {
                         }
                     }
                     if (dir) {
-                        this.callback(dir);
+                        this.callback.call(this.currentEl, dir);
                     }
                 }
             }.bind(data)
@@ -1818,7 +1820,7 @@ function jqre() {
             }
             return selector;
         },
-        VERSION: '1.0.0'
+        VERSION: '1.0.1'
     }
 
 

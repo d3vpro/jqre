@@ -18,7 +18,7 @@ jQuery compatible library developed with a modular approach and including a reac
 
 ## Why
 
-I did not plan to publish this library but I am pleased with it's current form so I decided to share it with you. I have used jQuery for many years and I really appreciate the contribution it has to the state of today's web.
+I did not plan to publish this library but I am pleased with its current form so I decided to share it with you. I have used jQuery for many years and I really appreciate the contribution it has to the state of todays web.
 
 As the javascript ecosystem grew, libraries efficiency and management became more and more important. jQuery includes a lot of apis, but usually I use only a fraction of them, especially as modern browsers feature set is more and more consistent and the motivation to support old browsers fades away. As ES6 modules support was implemented in all modern browsers I craved more and more for a more *lightweight* and *modular* library.
 
@@ -36,7 +36,7 @@ I have many applications that reside on jQuery, so I don't want to rewrite them,
 
 ### 2. Modularity
 
-I want functions to be grouped in modules. Currently, I grouped implemented apis into 7 modules (node, dom, navigation, event, shortevent, ajax, misc). Also, some jQuery UI apis will be developed, each having it's own module. For now, only `autocomplete` and `dialog` modules have been developed, with partial compatibility. jQuery UI replacement modules will not necessary implement all properties, methods and events of the original apis. Additionally, important functions like `isMobile`, `touchPunch`, `swipe` and others will be developed additionally and integrated in the most suitable module. The reactive component will have it's own module.
+I want functions to be grouped in modules. Currently, I grouped implemented apis into 7 modules (node, dom, navigation, event, shortevent, ajax, misc). Also, some jQuery UI apis will be developed, each having its own module. For now, only `autocomplete` and `dialog` modules have been developed, with partial compatibility. jQuery UI replacement modules will not necessary implement all properties, methods and events of the original apis. Additionally, important functions like `isMobile`, `touchPunch`, `swipe` and others will be developed additionally and integrated in the most suitable module. The reactive component will have its own module.
 
 ### 3. The reactive module requirements
 
@@ -87,7 +87,7 @@ I love Bootstrap too. For the css part of bootstrap I use PurgeCss to get rid of
 
 ### First part of jQRe, the jQuery replacement
 
-**For the modular architecture**, let's suppose you put the scripts in `/js/jqre.min/`. Then you will need to the have a script that does something like this:
+**For the modular architecture**, lets suppose you put the scripts in `/js/jqre.min/`. Then you will need to the have a script that does something like this:
 
 ```
 <script type="module">
@@ -276,7 +276,7 @@ The reactive component can be accessed using `$.r`.
 - refresh(idRef, handler = null, oldValue = undefined)
   Force trigger the update event of a variable, for a handler or for all handler. An old value can be forced too.
 - set(idRef, index, value = undefined)
-  Set a variable value. If the variable is an array, an index can be provided in order to update only it's value.
+  Set a variable value. If the variable is an array, an index can be provided in order to update only its value.
 - unset(idRef, index = null)
   Unset a variable. If the variable is an array, an index can be provided in order to delete only that index.
 - data

@@ -186,6 +186,7 @@ JNode.prototype.swipe = function(func) {
         y: -1,
         t: 0,
         els: this,
+        currentEl: null,
         callback: func
     };
     data.start = function(event) {
@@ -193,6 +194,7 @@ JNode.prototype.swipe = function(func) {
         event.stopPropagation();
         this.x = event.clientX;
         this.y = event.clientY;
+        this.currentEl = event.currentTarget;
     }.bind(data);
     data.reset = function() {
         this.x = -1;
@@ -227,7 +229,7 @@ JNode.prototype.swipe = function(func) {
                 }
             }
             if (dir) {
-                this.callback(dir);
+                this.callback.call(this.currentEl, dir);
             }
         }
     }.bind(data)
