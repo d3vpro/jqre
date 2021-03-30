@@ -60,7 +60,7 @@ JMain.isMobile = function() {
 JMain.parseHTML = function(data) {
     const r = new DOMParser().parseFromString(data, 'text/html').body;
     if (data.includes('<body')) {
-        return r;
+        return [r];
     } else {
         return r.childNodes;
     }
@@ -89,7 +89,7 @@ JMain._internal = {
         }
         return selector;
     },
-    VERSION: '1.0.1'
+    VERSION: '1.0.2'
 }
 
 async function jqre(modules = []) {

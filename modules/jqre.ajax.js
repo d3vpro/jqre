@@ -6,28 +6,28 @@ JNode.prototype.load = function(url, data = null, complete = null) {
         selector = url.substr(url.indexOf(' ') + 1);
         url = url.substr(0, url.indexOf(' '));
     }
-    const settings = {
-        'dataType': 'html',
-        'success': function(selector, html) {
-            for (const n of this) {
-                if (selector) {
-                    const els = html.querySelectorAll(JMain._internal.fixSelector(selector));
-                    n.innerHTML = els.length ? Array.from(els).reduce((h, el) => h + el.outerHTML, '') : '';
-                } else {
-                    n.innerHTML = html[0].outerHTML;
-                }
-            }
-        }.bind(this, selector)
-    };
+    const settings = {};
     if (typeof data === 'function') {
-        settings['complete'] = data;
+        complete = data;
     } else {
         settings['data'] = data;
     }
-    if (typeof complete === 'function') {
-        settings['complete'] = complete;
-    }
-    return JMain.ajax(url, settings);
+    settings['dataType'] = 'html';
+    settings['success'] = function(selector, complete, html) {
+        for (const n of this) {
+            if (selector) {
+                const els = html[0].querySelectorAll(JMain._internal.fixSelector(selector));
+                n.innerHTML = els.length ? Array.from(els).reduce((h, el) => h + el.outerHTML, '') : '';
+            } else {
+                n.innerHTML = html[0].outerHTML;
+            }
+            if (typeof complete === 'function') {
+                complete.call(n);
+            }
+        }
+    }.bind(this, selector, complete);
+    JMain.ajax(url, settings);
+    return this;
 }
 JNode.prototype.serialize = function() {
     return JMain.param(this.serializeArray());

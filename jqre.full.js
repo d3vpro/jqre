@@ -609,32 +609,32 @@ function jqre() {
         // .load() partial support, check JMain.ajax for details
         load(url, data = null, complete = null) {
             let selector = null;
-            if (url.lastIndexOf(' ') > -1) {
+            if (url.indexOf(' ') > -1) {
                 selector = url.substr(url.indexOf(' ') + 1);
                 url = url.substr(0, url.indexOf(' '));
             }
-            const settings = {
-                'dataType': 'html',
-                'success': function(selector, html) {
-                    for (const n of this) {
-                        if (selector) {
-                            const els = html.querySelectorAll(JMain._internal.fixSelector(selector));
-                            n.innerHTML = els.length ? Array.from(els).reduce((h, el) => h + el.outerHTML, '') : '';
-                        } else {
-                            n.innerHTML = html[0].outerHTML;
-                        }
-                    }
-                }.bind(this, selector)
-            };
+            const settings = {};
             if (typeof data === 'function') {
-                settings['complete'] = data;
+                complete = data;
             } else {
                 settings['data'] = data;
             }
-            if (typeof complete === 'function') {
-                settings['complete'] = complete;
-            }
-            return JMain.ajax(url, settings);
+            settings['dataType'] = 'html';
+            settings['success'] = function(selector, complete, html) {
+                for (const n of this) {
+                    if (selector) {
+                        const els = html[0].querySelectorAll(JMain._internal.fixSelector(selector));
+                        n.innerHTML = els.length ? Array.from(els).reduce((h, el) => h + el.outerHTML, '') : '';
+                    } else {
+                        n.innerHTML = html[0].outerHTML;
+                    }
+                    if (typeof complete === 'function') {
+                        complete.call(n);
+                    }
+                }
+            }.bind(this, selector, complete);
+            JMain.ajax(url, settings);
+            return this;
         }
         // .map() missing, may get support
         // .mousedown() full support
@@ -1573,7 +1573,7 @@ function jqre() {
     JMain.parseHTML = function(data) {
         const r = new DOMParser().parseFromString(data, 'text/html').body;
         if (data.includes('<body')) {
-            return r;
+            return [r];
         } else {
             return r.childNodes;
         }
@@ -1820,7 +1820,7 @@ function jqre() {
             }
             return selector;
         },
-        VERSION: '1.0.1'
+        VERSION: '1.0.2'
     }
 
 
