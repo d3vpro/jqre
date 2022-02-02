@@ -17,8 +17,7 @@ $(document).ready(function() {
                 tag_snippet_id: false,
                 task_id: false,
                 object: {},
-                targetElement: ".test_results",
-                type: ["list", "row", "card"]
+                targetElement: ".test_results"
             },
             methods: {
                 addToElement(type, value) {
