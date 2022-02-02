@@ -6,7 +6,7 @@ $(document).ready(function() {
     (async() => {
         window.$ = await jqre(['all']);
         // give it a name
-        $.r.define("test-input-2", {
+        $.r.define("toggle_input", {
             // template to utilize
             data: {
                 template: `<div class="input_wrapper"> <p class="heading">add</p> <span class='add_btn icon is-size-6'> <span class='hvr-grow'> <i class='icon icon-add hvr-icon'></i> </span> <span></span> </span> <span class="help_wrapper"></span><div class="control expand_up"> <div class="toggle noDisplay" class="is-flex is-flex-direction-row is-align-items-center" style="min-width: 200px; "> <input class="input is-success" type="text" placeholder="Add"> <span class="focus-border"></span> </div> </div>`,
@@ -71,10 +71,10 @@ $(document).ready(function() {
                     }
                 },
                 post(table, object) {
-                    axiosPost(table, object).then((response) => {
-                        this.addToElement(this.table.val(), response)
-                        this.unset()
-                    })
+                    // axiosPost(table, object).then((response) => {
+                    this.addToElement(this.table.val(), object)
+                    this.unset()
+                        // })
                 },
 
                 unset() {
@@ -149,31 +149,33 @@ $(document).ready(function() {
             }
         })
 
-        $.r.init("app2", {
-            type: "test-input-2",
-            el: "#app9",
+        $.r.init("toggle_task_name", {
+            type: "toggle_input",
+            el: ".toggle_task_name",
             data: {
                 table: "task",
                 column: "name",
                 problem_id: true,
                 cheatsheet_id: false,
                 task_id: false,
+                target_element: ".test_target"
             }
         })
-        $.r.init("app3", {
-            type: "test-input-2",
-            el: "#app8",
+        $.r.init("toggle_problem_problem", {
+            type: "toggle_input",
+            el: ".toggle_problem_problem",
             data: {
                 table: "problem",
                 column: "problem",
                 problem_id: false,
                 cheatsheet_id: false,
                 task_id: false,
+                target_element: ".test_results"
             }
         })
-        $.r.init("app4", {
-            type: "test-input-2",
-            el: "#app7",
+        $.r.init("toggle_cheatsheet_title", {
+            type: "toggle_input",
+            el: ".toggle_cheatsheet_title",
             data: {
                 table: "cheatsheet",
                 column: "title",

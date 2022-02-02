@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>JQRE REactive test</title>
+    <title>JQRE Module Example</title>
     <meta charset="UTF-8">
     <!-- Global/scss files -->
     <link rel='stylesheet' href='https://dl.dropbox.com/s/tljrmo925z4jgdi/professional.css' type='text/css' />
@@ -26,19 +26,23 @@
     <!-- Utils -->
 </head>
 
-<body>
+<body class="p-6">
+    <div class="divider">toggle_input</div>
+    div with test_results
     <div class="test_results"></div>
-    <div id="app2" data-problem_id="32"></div>
-
-    <div id="app3"></div>
-
-    <div id="app4"></div>
-
-    <div id="app9"></div>
-
-    <div id="app8"></div>
-    <div id="app7"></div>
-    <script src="./jqre.js"></script>
+    div with test_target
+    <div class="test_target"></div>
+    <div class="divider"></div>
+    div with toggle_problem_problem
+    <div class="toggle_problem_problem"></div>
+    <div class="divider"></div>
+    div with toggle_cheatsheet_title
+    <div class="toggle_cheatsheet_title"></div>
+    <div class="divider"></div>
+    div with toggle_task_name
+    <div class="toggle_task_name">
+    </div>
+    <script src="../jqre.full.js"></script>
     <script>
         $ = jqre();
     </script>
