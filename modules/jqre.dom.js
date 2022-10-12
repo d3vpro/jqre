@@ -1,32 +1,32 @@
 import { JNode, JMain } from './jqre.js';
 
 JNode.prototype.after = function(...data) {
-    return JMain._internal.baseManipution.call(this, 'after', ...data);
+    return JMain._internal.baseManipulation.call(this, 'after', ...data);
 }
 JNode.prototype.insertAfter = function(target) {
     return new JNode().add(target).after(this);
 }
 JNode.prototype.before = function(...data) {
-    return JMain._internal.baseManipution.call(this, 'before', ...data);
+    return JMain._internal.baseManipulation.call(this, 'before', ...data);
 }
 JNode.prototype.insertBefore = function(target) {
     return new JNode().add(target).before(this);
 }
 JNode.prototype.append = function(...data) {
-    return JMain._internal.baseManipution.call(this, 'append', ...data);
+    return JMain._internal.baseManipulation.call(this, 'append', ...data);
 }
 JNode.prototype.appendTo = function(target) {
     return new JNode().add(target).append(this);
 }
 JNode.prototype.prepend = function(...data) {
-    return JMain._internal.baseManipution.call(this, 'prepend', ...data);
+    return JMain._internal.baseManipulation.call(this, 'prepend', ...data);
 }
 JNode.prototype.prependTo = function(target) {
     return new JNode().add(target).prepend(this);
 }
 JNode.prototype.replaceWith = function(...newContent) {
     this.off();
-    return JMain._internal.baseManipution.call(this, 'replaceWith', ...newContent);
+    return JMain._internal.baseManipulation.call(this, 'replaceWith', ...newContent);
 }
 JNode.prototype.replaceAll = function(target) {
     if (!(target instanceof JNode)) {
@@ -39,9 +39,10 @@ JNode.prototype.clone = function(withDataAndEvents = false, deepWithDataAndEvent
     const r = new JNode();
     let el;
     for (const n of this) {
-        el = n.cloneNode(false);
         if (deepWithDataAndEvents && n.children.length) {
-            el = new JNode().add(el).append(new JNode().add(n.children).clone(withDataAndEvents, deepWithDataAndEvents));
+            el = new JNode().add(n.cloneNode(false)).append(new JNode().add(n.children).clone(withDataAndEvents, deepWithDataAndEvents));
+        } else {
+            el = n.cloneNode(true);
         }
         r.add(el);
         if (withDataAndEvents) {
@@ -117,6 +118,34 @@ JNode.prototype.html = function(html = null) {
     }
     return this;
 }
+JNode.prototype.runScripts = function() {
+	const r = new JNode();
+	for (const n of this) {
+		if (n.tagName === 'SCRIPT') {
+			r.add(n);
+		} else {
+			r.add(n.getElementsByTagName('script'));
+		}
+	}
+	for (const n of r) {
+		const type = n.getAttribute('type');
+		if (!type || type.indexOf('script') !== -1) {
+			const src = n.getAttribute('src');
+			if (src) {
+				const script = document.createElement('script');
+				script.setAttribute('type', type);
+				script.setAttribute('src', src);
+				script.addEventListener('load', function(event) {
+					event.target.remove();
+				});
+				document.getElementsByTagName('head').item(0).appendChild(script);
+			} else {
+				eval(n.textContent);
+			}
+		}
+	}
+	return this;
+}
 JNode.prototype.text = function(text = null) {
     for (const [i, n] of this.entries()) {
         if (text === null) {
@@ -131,7 +160,7 @@ JNode.prototype.text = function(text = null) {
 }
 
 /** @this {JNode} */
-JMain._internal.baseManipution = function(type, ...data) {
+JMain._internal.baseManipulation = function(type, ...data) {
     let r;
     for (const d of data) {
         if (typeof d !== 'function') {
@@ -144,6 +173,7 @@ JMain._internal.baseManipution = function(type, ...data) {
             for (const [j, el] of r.entries()) {
                 if (i + 1 < this.length && typeof d !== 'function') {
                     n[type](el.cloneNode(true));
+                // until last element do before instead of replace
                 } else if (type === 'replaceWith' && j + 1 < r.length) {
                     n['before'](el);
                 } else {

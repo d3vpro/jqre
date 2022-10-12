@@ -247,9 +247,9 @@ import {jqre} from '../modules.min/jqre.js';
             return $('#y,#z,#b').parent('.a').length === 1 && $('#y,#z,#b').parent('.b').length === 0 ? 'OK' : 'FAIL';
         },
         'clone': function() {
-            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"></div></div>';
+            document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"><div></div></div></div>';
             $('.y').clone().appendTo($('#x'));
-            return $('#x')[0].children.length === 2 ? 'OK' : 'FAIL';
+            return $('#x')[0].children.length === 2 && $('.y:last-child')[0].children.length === 1 ? 'OK' : 'FAIL';
         },
         'clone - with events': function() {
             document.querySelector('#test-area').innerHTML = '<div id="x"><div class="y"></div></div><div id="z"></div>';
@@ -556,14 +556,20 @@ import {jqre} from '../modules.min/jqre.js';
         'show / hide / toggle': function() {
             document.querySelector('#test-area').innerHTML = '<div id="x" style="display: none;"></div><div id="y" style="display: inline-block;"></div><div id="z" style="display: table;"></div>';
             $('#x').show();
-            $('#y').hide();
+            $('#y').hide().hide();
             $('#z').toggle();
-            return $('#x')[0].style.display === '' && $('#y')[0].style.display === 'none' && $('#y').show()[0].style.display === 'inline-block' &&
+            return $('#x')[0].style.display !== 'none' && $('#y')[0].style.display === 'none' && $('#y').show()[0].style.display === 'inline-block' &&
                 $('#z')[0].style.display === 'none' && $('#z').toggle()[0].style.display === 'table' ? 'OK' : 'FAIL';
         },
         'html': function() {
             document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';
             return $('#x').html() === 'X' && $('#y').html('<p>P</p><p>Q</p>').html() === '<p>P</p><p>Q</p>' && $('#z').html(function(){return '<p>P</p>'}).html() === '<p>P</p>' ? 'OK' : 'FAIL';
+        },
+        'runScripts': function() {
+            if (window.jQuery) return 'SKIP - new jQRe function';
+            document.querySelector('#test-area').innerHTML = '<div id="x"></div><div id="y"></div>';
+            $('#x').html('<scri' + 'pt>$("#y")[0].textContent += "Y";</scri' + 'pt>').runScripts();
+            return $('#y')[0].textContent === 'Y' ? 'OK' : 'FAIL';
         },
         'text': function() {
             document.querySelector('#test-area').innerHTML = '<div id="x">X</div><div id="y">Y</div><div id="z">Z</div>';

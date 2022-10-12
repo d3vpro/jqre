@@ -372,6 +372,7 @@ The dialog module is only partially compatible with the jQuery UI widget. The di
 
 There are a few new functions implemented in jQRe:
 
+- `runScripts()`: executes scripts contained in selection tree. Used to compensate the fact that scripts added in HTML strings are not automatically run
 - `swipe(func)` : executes a callback with one parameter, the swipe direction on the element. The direction can be one of `up`, `down`, `left` or `right`. If `func` is `false`, callbacks are removed for the element
 - `unique()` : removes duplicate elements from jQRe object; it is used internally by the `parent()` method
 - `$.clone(variable)` : clones an object / array recursively; uses json encode - decode
@@ -518,6 +519,7 @@ removeProp|full|node||
 replaceAll|full|dom||
 replaceWith|full|dom||
 resize|full|shortevent||
+runScripts|new|dom|executes scripts contained in selection tree|
 scroll|full|shortevent||
 scrollLeft|full|misc||
 scrollTop|full|misc||
@@ -606,6 +608,8 @@ $.uniqueSort|no, may get|||
 $.when|no|||
 ||||
 $._internal|new|-many-|internal objects and functions described in [New functions](#new-functions)
+
+Scripts in HTML strings are not automatically run for any function (full support functions included). `runScripts()` must be called manually when needed.
 
 Ajax functions have partial support as they do not support: `accepts`, `contents`, `context`, `converters`, `crossDomain`, `dataFilter`, `global`, `ifModified`, `isLocal`, `jsonp`, `jsonpCallback`, `mimeType`, `processData`, `scriptAttrs`, `scriptCharset`, `timeout`, `traditional`, `xhr`, `xhrFields`.
 Extra options available from fetch: `referrerPolicy`, `mode`, `credentials`, `redirect`, `integrity`, `keepalive`, `signal`, `window`.

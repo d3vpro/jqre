@@ -131,13 +131,13 @@ function jqre() {
         }
         // .after() full support
         after(...data) {
-            return JMain._internal.baseManipution.call(this, 'after', ...data);
+            return JMain._internal.baseManipulation.call(this, 'after', ...data);
         }
         // .ajax*() missing, support not planned
         // .animate() missing, support not planned
         // .append() full support
         append(...data) {
-            return JMain._internal.baseManipution.call(this, 'append', ...data);
+            return JMain._internal.baseManipulation.call(this, 'append', ...data);
         }
         // .appendTo() full support
         appendTo(target) {
@@ -164,7 +164,7 @@ function jqre() {
         }
         // .before() full support
         before(...data) {
-            return JMain._internal.baseManipution.call(this, 'before', ...data);
+            return JMain._internal.baseManipulation.call(this, 'before', ...data);
         }
         // .blur() full support
         blur(eventData = null, handler = null) {
@@ -194,9 +194,10 @@ function jqre() {
             const r = new JNode();
             let el;
             for (const n of this) {
-                el = n.cloneNode(false);
                 if (deepWithDataAndEvents && n.children.length) {
-                    el = new JNode().add(el).append(new JNode().add(n.children).clone(withDataAndEvents, deepWithDataAndEvents));
+                    el = new JNode().add(n.cloneNode(false)).append(new JNode().add(n.children).clone(withDataAndEvents, deepWithDataAndEvents));
+                } else {
+                    el = n.cloneNode(true);
                 }
                 r.add(el);
                 if (withDataAndEvents) {
@@ -451,7 +452,9 @@ function jqre() {
         // .hide() partial support, just base functionality, no animation
         hide() {
             for (const n of this) {
-                n.dataset['jqreInitialDisplay'] = JMain._internal.getComputedCss(n, 'display');
+                if (n.style.display !== 'none') {
+                    n.dataset['jqreInitialDisplay'] = JMain._internal.getComputedCss(n, 'display');
+                }
                 n.style.display = 'none';
             }
             return this;
@@ -881,7 +884,7 @@ function jqre() {
         // .position() missing, may get support
         // .prepend() full support
         prepend(...data) {
-            return JMain._internal.baseManipution.call(this, 'prepend', ...data);
+            return JMain._internal.baseManipulation.call(this, 'prepend', ...data);
         }
         // .prependTo() full support
         prependTo(target) {
@@ -988,11 +991,40 @@ function jqre() {
         // .replaceWith() full support
         replaceWith(...newContent) {
             this.off();
-            return JMain._internal.baseManipution.call(this, 'replaceWith', ...newContent);
+            return JMain._internal.baseManipulation.call(this, 'replaceWith', ...newContent);
         }
         // .resize() full support
         resize(eventData = null, handler = null) {
             return JMain._internal.runEventShorthand.apply(this, ['resize', ...arguments]);
+        }
+        // .runScripts() new function, executes scripts contained in selection tree
+        runScripts() {
+            const r = new JNode();
+            for (const n of this) {
+                if (n.tagName === 'SCRIPT') {
+                    r.add(n);
+                } else {
+                    r.add(n.getElementsByTagName('script'));
+                }
+            }
+            for (const n of r) {
+                const type = n.getAttribute('type');
+                if (!type || type.indexOf('script') !== -1) {
+                    const src = n.getAttribute('src');
+                    if (src) {
+                        const script = document.createElement('script');
+                        script.setAttribute('type', type);
+                        script.setAttribute('src', src);
+                        script.addEventListener('load', function(event) {
+                            event.target.remove();
+                        });
+                        document.getElementsByTagName('head').item(0).appendChild(script);
+                    } else {
+                        eval(n.textContent);
+                    }
+                }
+            }
+            return this;
         }
         // .scroll() full support
         scroll(eventData = null, handler = null) {
@@ -1087,6 +1119,8 @@ function jqre() {
                 if (n.dataset['jqreInitialDisplay']) {
                     n.style.display = n.dataset['jqreInitialDisplay'];
                     delete n.dataset['jqreInitialDisplay'];
+                } else if (JMain._internal.getComputedCss(n, 'display') === 'none') {
+                    n.style.display = 'initial';
                 } else {
                     n.style.display = '';
                 }
@@ -1205,11 +1239,15 @@ function jqre() {
         // .toggle() partial support, just base functionality, no animation
         toggle() {
             for (const n of this) {
-                if (n.dataset['jqreInitialDisplay']) {
-                    n.style.display = n.dataset['jqreInitialDisplay'];
-                    delete n.dataset['jqreInitialDisplay'];
+                if (JMain._internal.getComputedCss(n, 'display') === 'none') {
+                    if (n.dataset['jqreInitialDisplay']) {
+                        n.style.display = n.dataset['jqreInitialDisplay'];
+                        delete n.dataset['jqreInitialDisplay'];
+                    } else {
+                        n.style.display = 'initial';
+                    }
                 } else {
-                    n.dataset['jqreInitialDisplay'] = n.style.display;
+                    n.dataset['jqreInitialDisplay'] = JMain._internal.getComputedCss(n, 'display');
                     n.style.display = 'none';
                 }
             }
@@ -1689,7 +1727,7 @@ function jqre() {
         JNode: JNode,
         // extra support for string selector as content
         /** @this {JNode} */
-        baseManipution: function(type, ...data) {
+        baseManipulation: function(type, ...data) {
             let r;
             for (const d of data) {
                 if (typeof d !== 'function') {
@@ -1702,6 +1740,7 @@ function jqre() {
                     for (const [j, el] of r.entries()) {
                         if (i + 1 < this.length && typeof d !== 'function') {
                             n[type](el.cloneNode(true));
+                        // until last element do before instead of replace
                         } else if (type === 'replaceWith' && j + 1 < r.length) {
                             n['before'](el);
                         } else {
@@ -1820,7 +1859,7 @@ function jqre() {
             }
             return selector;
         },
-        VERSION: '1.0.2'
+        VERSION: '1.0.3'
     }
 
 

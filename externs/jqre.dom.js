@@ -13,6 +13,7 @@ JNode.prototype.wrap = function(wrappingElement) {}
 JNode.prototype.remove = function(selector = null) {}
 JNode.prototype.empty = function() {}
 JNode.prototype.html = function(html = null) {}
+JNode.prototype.runScripts = function() {}
 JNode.prototype.text = function(text = null) {}
 
 // Uncomment to export _internal

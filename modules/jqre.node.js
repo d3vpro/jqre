@@ -352,6 +352,8 @@ JNode.prototype.show = function() {
         if (n.dataset['jqreInitialDisplay']) {
             n.style.display = n.dataset['jqreInitialDisplay'];
             delete n.dataset['jqreInitialDisplay'];
+        } else if (JMain._internal.getComputedCss(n, 'display') === 'none') {
+            n.style.display = 'initial';
         } else {
             n.style.display = '';
         }
@@ -360,18 +362,24 @@ JNode.prototype.show = function() {
 }
 JNode.prototype.hide = function() {
     for (const n of this) {
-        n.dataset['jqreInitialDisplay'] = JMain._internal.getComputedCss(n, 'display');
+        if (n.style.display !== 'none') {
+            n.dataset['jqreInitialDisplay'] = JMain._internal.getComputedCss(n, 'display');
+        }
         n.style.display = 'none';
     }
     return this;
 }
 JNode.prototype.toggle = function() {
     for (const n of this) {
-        if (n.dataset['jqreInitialDisplay']) {
-            n.style.display = n.dataset['jqreInitialDisplay'];
-            delete n.dataset['jqreInitialDisplay'];
+        if (JMain._internal.getComputedCss(n, 'display') === 'none') {
+            if (n.dataset['jqreInitialDisplay']) {
+                n.style.display = n.dataset['jqreInitialDisplay'];
+                delete n.dataset['jqreInitialDisplay'];
+            } else {
+                n.style.display = 'initial';
+            }
         } else {
-            n.dataset['jqreInitialDisplay'] = n.style.display;
+            n.dataset['jqreInitialDisplay'] = JMain._internal.getComputedCss(n, 'display');
             n.style.display = 'none';
         }
     }

@@ -74,6 +74,7 @@ class JNode extends Array {
     replaceAll(target) {}
     replaceWith(...newContent) {}
     resize(eventData = null, handler = null) {}
+    runScripts() {}
     scroll(eventData = null, handler = null) {}
     scrollLeft(value = null) {}
     scrollTop(value = null) {}
@@ -170,6 +171,6 @@ $._internal = {
     ajaxBase: async function(settings) {},
     getComputedCss: function(el, propertyName) {},
     fixSelector: function(selector) {},
-    VERSION: '1.0.0'
+    VERSION: '1.0.3'
 };
 */
