@@ -585,7 +585,7 @@ import {jqre} from '../modules.min/jqre.js';
         },
         'ajax - url - beforeSend success complete': async function() {
             document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
-            $.ajax('https://httpbin.org/anything', {
+            await $.ajax('https://httpbin.org/anything', {
                 dataType: 'json',
                 beforeSend: function() {
                     $('#x').text($('#x').text() + 'B');
@@ -597,12 +597,11 @@ import {jqre} from '../modules.min/jqre.js';
                     $('#x').text($('#x').text() + 'D');
                 }
             });
-            await sleep(500);
             return $('#x')[0].textContent === 'ABCD' ? 'OK' : 'FAIL';
         },
         'ajax - url error statusCode': async function() {
             document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
-            $.ajax({
+            await $.ajax({
                 url: 'https://httpbin.org/status/404',
                 statusCode: {
                     404: function() {
@@ -619,13 +618,12 @@ import {jqre} from '../modules.min/jqre.js';
                     $('#x').text($('#x').text() + 'E');
                 }
             });
-            await sleep(500);
             return $('#x')[0].textContent === 'ABCE' ? 'OK' : 'FAIL';
         },
         'ajax - url method data contentType headers cache': async function() {
             if (window.jQuery) return 'SKIP - cache option has different use in jQRe';
             document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
-            $.ajax('https://httpbin.org/post', {
+            await $.ajax('https://httpbin.org/post', {
                 contentType: 'text/plain',
                 headers: {
                     Test: 'value'
@@ -639,7 +637,6 @@ import {jqre} from '../modules.min/jqre.js';
                     $('#x').text($('#x').text() + 'B' + data.data + data.headers['Content-Type'] + data.headers['Test'] + data.headers['Cache-Control']);
                 }
             });
-            await sleep(500);
             return $('#x')[0].textContent === 'ABkey=valtext/plainvalueno-cache' ? 'OK' : 'FAIL';
         },
         'ajax - url username password async': async function() {
@@ -657,26 +654,23 @@ import {jqre} from '../modules.min/jqre.js';
         },
         'ajax get - data success': async function() {
             document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
-            $.get('https://httpbin.org/get', {x: 'y'}, function(data) {
+            await $.get('https://httpbin.org/get', {x: 'y'}, function(data) {
                 $('#x').text($('#x').text() + 'B' + data.args.x);
             });
-            await sleep(500);
             return $('#x')[0].textContent === 'ABy' ? 'OK' : 'FAIL';
         },
         'ajax getJSON - success': async function() {
             document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
-            $.getJSON('https://httpbin.org/get', function(data, response) {
+            await $.getJSON('https://httpbin.org/get', function(data, response) {
                 $('#x').text($('#x').text() + 'B' + data.headers.Host);
             });
-            await sleep(500);
             return $('#x')[0].textContent === 'ABhttpbin.org' ? 'OK' : 'FAIL';
         },
         'ajax post - data success dataType': async function() {
             document.querySelector('#test-area').innerHTML = '<div id="x">A</div>';
-            $.post('https://httpbin.org/post', {x: 'y'}, function(data) {
+            await $.post('https://httpbin.org/post', {x: 'y'}, function(data) {
                 $('#x').text($('#x').text() + 'B' + data.form.x);
             }, 'json');
-            await sleep(500);
             return $('#x')[0].textContent === 'ABy' ? 'OK' : 'FAIL';
         },
         'ajax load - selector complete': async function() {
@@ -684,7 +678,7 @@ import {jqre} from '../modules.min/jqre.js';
             $('#x').load('https://httpbin.org/html h1', function() {
                 $('#x').html($('#x').html() + '<p>B</p>');
             });
-            await sleep(500);
+            await sleep(1500);
             return $('#x')[0].innerHTML === '<h1>Herman Melville - Moby-Dick</h1><p>B</p>' ? 'OK' : 'FAIL';
         },
         'next': function() {
