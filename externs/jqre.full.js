@@ -171,6 +171,6 @@ $._internal = {
     ajaxBase: async function(settings) {},
     getComputedCss: function(el, propertyName) {},
     fixSelector: function(selector) {},
-    VERSION: '1.0.3'
+    VERSION: '1.0.4'
 };
 */

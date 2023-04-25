@@ -237,6 +237,7 @@ The reactive component can be accessed using `$.r`.
         'components' - object of instance definitions
             'instanceName' - object
                 'data' - object containing key - value pairs
+                'components' - object of instance definitions
 
     Example:
 

@@ -155,6 +155,7 @@ JMain.r = {
     init: function(id, instanceData) {
         const data = Reactive.data.definitions[instanceData.type];
         if (!data) {
+            console.error(`Type '${instanceData.type}' not defined!`);
             return false;
         }
         data.el = instanceData['el'];
@@ -171,7 +172,11 @@ JMain.r = {
             for (const i in instanceData['components']) {
                 const cd = Reactive.data.definitions[data.components[i]['type']];
                 if (!cd) {
+                    console.error(`Type '${data.components[i]['type']}' not defined!`);
                     return false;
+                }
+                if (!data.components[i].hasOwnProperty('data')) {
+                    data.components[i].data = {};
                 }
                 if (instanceData['components'][i]['data']) {
                     for (const j in instanceData['components'][i]['data']) {
@@ -179,6 +184,9 @@ JMain.r = {
                             data.components[i].data[j] = instanceData['components'][i].data[j];
                         }
                     }
+                }
+                if (instanceData['components'][i]['components']) {
+                    data.components[i].components = instanceData['components'][i].components;
                 }
             }
         }
@@ -276,10 +284,12 @@ JMain.r = {
                     delete Reactive.data.instancesRestoreData[i];
                 }
             }
-            for (const i in Reactive.data.instancesRestoreData[id]) {
-                Reactive.data.instances[id].$restore(i);
+            if (Reactive.data.instancesRestoreData[id]) {
+                for (const i in Reactive.data.instancesRestoreData[id]) {
+                    Reactive.data.instances[id].$restore(i);
+                }
+                delete Reactive.data.instancesRestoreData[id];
             }
-            delete Reactive.data.instancesRestoreData[id];
 
             for (const i in Reactive.data.instances) {
                 if (i.substr(0, idLength) === idC) {
