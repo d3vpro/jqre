@@ -18,6 +18,6 @@ $._internal = {
     JNode: JNode,
     getComputedCss: function(el, propertyName) {},
     fixSelector: function(selector) {},
-    VERSION: '1.0.4'
+    VERSION: '1.1.0'
 }
 */

@@ -193,28 +193,28 @@ The reactive component can be accessed using `$.r`.
         },
         methods: {
             addPost: function(title) {
-                this.posts.set(this.posts.val().length, {title: title});
+                this.posts.push({title: title});
             }
         },
         events: {
             create: function() {
                 if (this.$find('#no-posts').length === 0) {
-                    this.$el.append('<div id="no-posts"><p>' + this.noPostsMessage.val() + '</p></div>');
+                    this.$el.append('<div id="no-posts"><p>' + this.noPostsMessage + '</p></div>');
                 }
             },
             update: {
                 posts: function(oldV) {
-                    if (this.posts.val().length > 0) {
+                    if (this.posts.length > 0) {
                         this.$restore('#posts');
                         this.$remove('#no-posts');
                     } else {
                         this.$remove('#posts');
                         this.$restore('#no-posts');
                     }
-                    this.totalPosts.set(this.posts.val().length);
+                    this.totalPosts = this.posts.length;
                 },
                 totalPosts: function(oldV) {
-                    this.$find('.heading').text(this.title.val() + ' (' + this.totalPosts.val() + ')');
+                    this.$find('.heading').text(this.title + ' (' + this.totalPosts + ')');
                 }
             },
             click: {
@@ -263,7 +263,7 @@ The reactive component can be accessed using `$.r`.
 - trigger(id, customEvent, params = null)
   Global function that can trigger a custom event on an instance with specified params.
 - get(refId)
-  Global function to get variable value.
+  Global function to get a reactive variable value.
   Variable refId is built using parent component chain and variable name joined by dots: "parentComponent.component.variable".
 - ref(refId)
   Return a reference to a reactive variable that can be used anywhere, like when instantiang a component, or in a child component data.
@@ -313,18 +313,8 @@ The reactive component can be accessed using `$.r`.
 
 ```
 - val()
-    After a lot of thinking and testing I decided that variables should be set and read using ".val()", ".set()" and ".unset()" functions.
-    So variables are not read by "this.variable" but by "this.variable.val()". The reason behind this is performance.
-    It's easy to set up a Proxy to be able to read a variable directly and is efficient enough.
-    The problem is setting a variable, especially if it is an object with multiple levels nested.
-    In this case a deep proxy must be used (which means setting a Proxy on every key of every nested level).
-    For small components it works well, but it does not scale well so I chose performance over coding comodity.
-    Also, a mix is possible, meaning using "this.variable" only for reading, but it could cause confusions in cases like:
-
-    this.set(this.variable, ['a', 'b']);
-    console.log(this.variable[1]); // b
-    this.variable[1] = 'c'; // no error, so it must be working
-    console.log(this.variable[1]); // still b
+    Reactive variables can be used normally using ".val()", ".set()" and ".unset()" functions.
+    When inside a component method or event, they are accessed directly; a deep proxy is used to preserve reactivity in this case.
 - set(index, value = undefined)
     Set a variable value, or optionally, the value at the specified index, if it's an array or object.
 - unset(index = null)

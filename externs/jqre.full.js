@@ -156,7 +156,7 @@ $.r = {
     ref: function(id) {},
     attach: function(idRef, handler, instanceId = null) {},
     deattach: function(idRef, handlerOrIndex = null, instanceId = null) {},
-    refresh: function(idRef, handlerOrIndex = null, oldVal = undefined) {},
+    refresh: async function(idRef, handlerOrIndex = null, oldVal = undefined) {},
     set: function(idRef, index, value = undefined) {},
     unset: function(idRef, index = null) {}
 }
@@ -171,6 +171,6 @@ $._internal = {
     ajaxBase: async function(settings) {},
     getComputedCss: function(el, propertyName) {},
     fixSelector: function(selector) {},
-    VERSION: '1.0.4'
+    VERSION: '1.1.0'
 };
 */

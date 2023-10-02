@@ -30,7 +30,7 @@ $.r = {
     ref: function(id) {},
     attach: function(idRef, handler, instanceId = null) {},
     deattach: function(idRef, handlerOrIndex = null, instanceId = null) {},
-    refresh: function(idRef, handlerOrIndex = null, oldVal = undefined) {},
+    refresh: async function(idRef, handlerOrIndex = null, oldVal = undefined) {},
     set: function(idRef, index, value = undefined) {},
     unset: function(idRef, index = null) {}
 }

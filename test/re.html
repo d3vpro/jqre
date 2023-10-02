@@ -61,14 +61,13 @@ import {jqre} from '../modules.min/jqre.js';
             update: {
                 posts: function() {
                     let currPosts = this.$el.children('.post');
-                    let newPosts = this.posts.val();
-                    for (let i=newPosts.length; i<currPosts.length; i++) {
+                    for (let i=this.posts.length; i<currPosts.length; i++) {
                         currPosts[i].remove();
                     }
-                    for (const [i, n] of newPosts.entries()) {
-                        let post = $(this.postTemplate.val());
+                    for (const [i, n] of this.posts.entries()) {
+                        let post = $(this.postTemplate);
                         post.find('.title').text(n.title);
-                        post.find('.readmore').text(this.textReadMore.val());
+                        post.find('.readmore').text(this.textReadMore);
                         if (currPosts.length > i) {
                             if (post[0].outerHtml !== currPosts[i].outerHTML) {
                                 this.$el[0].replaceChild(post[0], currPosts[i]);
@@ -81,7 +80,7 @@ import {jqre} from '../modules.min/jqre.js';
             },
             click: {
                 '.remove': function(event) {
-                    this.posts.unset($(event.target).closest('.post').index() - 1);
+                    this.posts = this.posts.filter((val, index) => index !== $(event.target).closest('.post').index() - 1);
                 },
                 '.readmore': {
                     data: {
@@ -125,41 +124,41 @@ import {jqre} from '../modules.min/jqre.js';
                 return posts;
             },
             addPost: function(title) {
-                this.posts.set(this.posts.val().length, {title: title});
+                this.posts.push({title: title});
                 this.sortPosts();
             },
             sortPosts: function() {
-                if (!this.posts.val()) {
+                if (!this.posts) {
                     return;
                 }
-                this.posts.set(this.posts.val().sort(
-                    this.sortDirection.val() === 'desc' ? 
+                this.posts = this.posts.sort(
+                    this.sortDirection === 'desc' ? 
                     function(a, b) { return a.title.toUpperCase() < b.title.toUpperCase() ? 1 : -1; } : 
                     function(a, b) { return a.title.toUpperCase() > b.title.toUpperCase() ? 1 : -1; }
-                ));
+                )
             }
         },
         events: {
             create: function() {
                 if (this.$find('#no-posts').length === 0) {
-                    this.$el.append('<div id="no-posts" class="card p-3 m-3"><p>' + this.noPostsMessage.val() + '</p></div>');
+                    this.$el.append('<div id="no-posts" class="card p-3 m-3"><p>' + this.noPostsMessage + '</p></div>');
                 }
-                this.posts.set(this.loadPosts());
+                this.posts = this.loadPosts();
                 this.sortPosts();
             },
             update: {
                 posts: function(oldV) {
-                    if (this.posts.val().length > 0) {
+                    if (this.posts.length > 0) {
                         this.$restore('#posts');
                         this.$remove('#no-posts');
                     } else {
                         this.$remove('#posts');
                         this.$restore('#no-posts');
                     }
-                    this.totalPosts.set(this.posts.val().length);
+                    this.totalPosts = this.posts.length;
                 },
                 totalPosts: function(oldV) {
-                    this.$find('.heading').text(this.title.val() + ' (' + this.totalPosts.val() + ')');
+                    this.$find('.heading').text(this.title + ' (' + this.totalPosts + ')');
                 },
                 sortDirection: function(oldV) {
                     this.sortPosts();
@@ -174,7 +173,7 @@ import {jqre} from '../modules.min/jqre.js';
                 }
             },
             toggleSortDirection: function(direction) {
-                this.sortDirection.set(direction);
+                this.sortDirection = direction;
             }
         }
     });
@@ -278,7 +277,7 @@ import {jqre} from '../modules.min/jqre.js';
         document.body.appendChild(script1);
         let script2 = document.createElement('script');
         script2.text = content[1].substr(content[1].indexOf('>') + 1);
-        setTimeout(function(){document.body.appendChild(script2);}, 100);
+        setTimeout(function(){document.body.appendChild(script2);}, 500);
     }
 })();
         </script>

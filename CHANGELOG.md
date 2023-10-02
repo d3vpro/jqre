@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.0] - 2023-10-02
+
+### Changed
+
+- MAJOR Changed reactive variables getting, setting and unsetting inside component; Direct manipulation based on proxies has been implemented
+- MINOR Changed `refresh` function to async
+- MINOR Changed monolithic minifier input and output ES version
+
+### Fixed
+
+- MINOR Fixed `listState` function to correctly return state
+
 ## [1.0.4] - 2023-04-25
  
 ### Fixed

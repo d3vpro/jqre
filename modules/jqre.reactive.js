@@ -46,13 +46,13 @@ class Reactive {
         for (const i in data.data) {
             Object.defineProperty(this, i, {
                 value: data.data[i],
-                writable: false
+                writable: true
             });
         }
         for (const i in data.methods) {
             Object.defineProperty(this, i, {
-                value: data.methods[i].bind(this),
-                writable: false
+                value: data.methods[i],
+                writable: true
             });
         }
     }
@@ -99,6 +99,79 @@ class Reactive {
             delete Reactive.data.instancesRestoreData[this['$id']][selector];
         }
     }
+    static reactiveMap = new WeakMap()
+    static initReactive(target, path, root = true) {
+        const proxy = new Proxy(target, {
+            get(target, key) {
+                if (key == '__isProxy') {
+                    return true;
+                }
+                const info = Reactive.reactiveMap.get(target);
+                let value;
+                if (info.root) {
+                    value = target[key]
+                    if (value instanceof ReactiveVar) {
+                        value = JMain.r.get(value.id);
+                    } else if (typeof value === 'function' && !['$emit', '$find', '$remove', '$restore'].includes(key)) {
+                        return value.bind(info.proxy);
+                    } else {
+                        return target[key];
+                    }
+                } else {
+                    value = target[key];
+                }
+                if (typeof value === 'object' && value !== null && !value.__isProxy) {
+                    if (Reactive.reactiveMap.has(value)) {
+                        return Reactive.reactiveMap.get(value).proxy;
+                    } else {
+                        return Reactive.initReactive(value, info.root ? info.path + '.' + key : info.path, false);
+                    }
+                } else {
+                    return value;
+                }
+            },
+            set(target, key, value) {
+                if (key !== 'length' || !Array.isArray(target)) {
+                    const info = Reactive.reactiveMap.get(target);
+                    if (info.root) {
+                        if (target[key] instanceof ReactiveVar) {
+                            JMain.r.set(target[key], value);
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        const oldVal = target[key];
+                        target[key] = value;
+                        JMain.r.refresh(info.path, null, oldVal);
+                    }
+                    return true;
+                } else {
+                    target[key] = value;
+                    return true;
+                }
+            },
+            deleteProperty(target, key) {
+                const info = Reactive.reactiveMap.get(target);
+                if (info.root) {
+                    if (target[key] instanceof ReactiveVar) {
+                        JMain.r.unset(info.path + '.' + key);
+                    } else {
+                        return;
+                    }
+                } else {
+                    const oldVal = target[key];
+                    delete target[key];
+                    JMain.r.refresh(info.path, null, oldVal);
+                }
+            },
+        });
+        Reactive.reactiveMap.set(target, {
+            path: path,
+            proxy: proxy,
+            root: root,
+        });
+        return proxy;
+    }
 }
 Reactive.data = {
     definitions: {},
@@ -131,7 +204,7 @@ JMain.r = {
         return result;
     },
     listState: function() {
-        return Object.keys(Reactive.data.instances);
+        return Object.keys(Reactive.data.state);
     },
     listStateUpdateEvents: function() {
         const result = {};
@@ -208,7 +281,7 @@ JMain.r = {
                 data.data[i] = JMain.r.ref(id + '.' + i);
             }
         }
-        Reactive.data.instances[id] = new Reactive(id, data);
+        Reactive.data.instances[id] = Reactive.initReactive(new Reactive(id, data), id);
         Reactive.data.instancesCustomEvents[id] = {};
         const updateEventsToExecute = [];
         if (data.events) {
@@ -356,7 +429,7 @@ JMain.r = {
         }
         return false;
     },
-    refresh: function(idRef, handlerOrIndex = null, oldVal = undefined) {
+    refresh: async function(idRef, handlerOrIndex = null, oldVal = undefined) {
         if (typeof idRef !== 'string') {
             idRef = idRef.id;
         }
@@ -395,27 +468,31 @@ JMain.r = {
         if (typeof idRef !== 'string') {
             idRef = idRef.id;
         }
-        const oldVal = JMain.r.get(idRef);
+        let oldVal = JMain.r.get(idRef);
+        oldVal = (/boolean|number|string/).test(typeof oldVal) ? oldVal : JSON.parse(JSON.stringify(oldVal));
+        let newVal;
         if (value === undefined) {
-            value = index;
+            newVal = index;
         } else {
-            const newValue = value;
-            value = (/boolean|number|string/).test(typeof oldVal) ? oldVal : JSON.parse(JSON.stringify(oldVal));
-            if (typeof value === 'object' && value !== null) {
-                value[index] = newValue;
+            newVal = (/boolean|number|string/).test(typeof oldVal) ? oldVal : JSON.parse(JSON.stringify(oldVal));
+            if (typeof newVal === 'object' && newVal !== null) {
+                newVal[index] = value;
             } else {
                 return false;
             }
         }
         let different = false;
         if ((/boolean|number|string/).test(typeof oldVal) && (/boolean|number|string/).test(typeof variable)) {
-            different = oldVal !== value;
+            different = oldVal !== newVal;
         } else {
-            different = JSON.stringify(oldVal) !== JSON.stringify(value);
-            value = JSON.parse(JSON.stringify(value));
+            different = JSON.stringify(oldVal) !== JSON.stringify(newVal);
         }
         if (different) {
-            Reactive.data.state[idRef] = value;
+            if (value === undefined) {
+                Reactive.data.state[idRef] = index;
+            } else {
+                Reactive.data.state[idRef][index] = value;
+            }
             JMain.r.refresh(idRef, null, oldVal);
         }
         return true;
@@ -424,43 +501,31 @@ JMain.r = {
         if (typeof idRef !== 'string') {
             idRef = idRef.id;
         }
+        const currentVal = JMain.r.get(idRef);
+        const oldVal = (/boolean|number|string/).test(typeof currentVal) ? currentVal : JSON.parse(JSON.stringify(currentVal));
         if (index !== null) {
-            const oldVal = JMain.r.get(idRef);
-            if (typeof oldVal === 'object' && oldVal !== null && oldVal[index]) {
-                let value;
-                if (Array.isArray(oldVal)) {
-                    value = JSON.parse(JSON.stringify(oldVal));
-                    delete value[index];
-                    value = value.filter(val => val !== undefined);
-                } else {
-                    value = Object.assign({}, oldVal);
-                    delete value[index];
+            if (typeof currentVal === 'object' && currentVal !== null && index in currentVal) {
+                delete Reactive.data.state[idRef][index];
+                if (Array.isArray(currentVal)) {
+                    Reactive.data.state[idRef] = currentVal.filter(val => val !== undefined);
                 }
-                return JMain.r.set(idRef, value);
+                JMain.r.refresh(idRef, null, oldVal);
+                return true;
             }
-        } else if (Reactive.data.state[idRef]) {
-            let oldVal = JMain.r.get(idRef);
-            oldVal = (/boolean|number|string/).test(typeof oldVal) ? oldVal : JSON.parse(JSON.stringify(oldVal));
-            if (oldVal === undefined || oldVal === null) {
-                Reactive.data.state[idRef] = oldVal;
-            } else if (Array.isArray(oldVal)) {
+        } else if (idRef in Reactive.data.state) {
+            if (currentVal === undefined || currentVal === null) {
+            } else if (Array.isArray(currentVal)) {
                 Reactive.data.state[idRef] = [];
             } else {
-                switch (typeof oldVal) {
+                switch (typeof currentVal) {
                     case 'object': Reactive.data.state[idRef] = {}; break;
                     case 'boolean': Reactive.data.state[idRef] = false; break;
                     case 'string': Reactive.data.state[idRef] = ''; break;
                     case 'number': case 'bigint': Reactive.data.state[idRef] = 0; break;
-                    default: Reactive.data.state[idRef] = null
+                    default: Reactive.data.state[idRef] = null;
                 }
             }
-            if (Reactive.data.stateUpdateEvents[idRef]) {
-                for (const i in Reactive.data.stateUpdateEvents[idRef]) {
-                    if (Reactive.data.stateUpdateEvents[idRef][i]) {
-                        Reactive.data.stateUpdateEvents[idRef][i].handler.call(Reactive.data.instances[Reactive.data.stateUpdateEvents[idRef][i].instanceId], oldVal);
-                    }
-                }
-            }
+            JMain.r.refresh(idRef, null, oldVal);
             delete Reactive.data.state[idRef];
             delete Reactive.data.stateUpdateEvents[idRef];
             return true;
@@ -474,5 +539,6 @@ JMain.r.data = {
     'instancesCustomEvents': Reactive.data.instancesCustomEvents,
     'instancesRestoreData': Reactive.data.instancesRestoreData,
     'state': Reactive.data.state,
-    'stateUpdateEvents': Reactive.data.stateUpdateEvents
+    'stateUpdateEvents': Reactive.data.stateUpdateEvents,
+    'map': Reactive.reactiveMap,
 };
