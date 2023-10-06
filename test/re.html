@@ -6,7 +6,7 @@
     </head>
     <body>
         <div class="container pt-3 pb-3" id="app">
-            <p>Should see in console: 15 logs with correct statements</p>
+            <p>Should see in console: 17 logs with correct statements</p>
             <div class="row">
                 <div class="col-12 col-md-auto">
                     <h1 class="heading">Posts</h1>
@@ -78,9 +78,13 @@ import {jqre} from '../modules.min/jqre.js';
                     }
                 }
             },
+            destroy: function() {
+                console.log(`Destroyed ${this.$id}`);
+            },
             click: {
                 '.remove': function(event) {
-                    this.posts = this.posts.filter((val, index) => index !== $(event.target).closest('.post').index() - 1);
+                    delete this.posts[$(event.target).closest('.post').index() - 1];
+                    this.posts = this.posts.filter(item => item !== undefined);
                 },
                 '.readmore': {
                     data: {
@@ -105,15 +109,6 @@ import {jqre} from '../modules.min/jqre.js';
             posts: [],
             totalPosts: 0,
             sortDirection: 'asc'
-        },
-        components: {
-            items: {
-                type: 'post-item',
-                el: '#posts',
-                data: {
-                    posts: $.r.ref('this.posts')
-                }
-            }
         },
         methods: {
             loadPosts: function() {
@@ -143,7 +138,9 @@ import {jqre} from '../modules.min/jqre.js';
                 if (this.$find('#no-posts').length === 0) {
                     this.$el.append('<div id="no-posts" class="card p-3 m-3"><p>' + this.noPostsMessage + '</p></div>');
                 }
-                this.posts = this.loadPosts();
+                if (this.posts.length === 0) {
+                    this.posts = this.loadPosts();
+                }
                 this.sortPosts();
             },
             update: {
@@ -185,14 +182,16 @@ import {jqre} from '../modules.min/jqre.js';
             title: $('h1').text(),
             noPostsMessage: 'No posts to show'
         },
-        components: {
-            items: {
-                data: {
-                    postTemplate: $('#posts').children().length > 1 ? $('#posts').children()[1].outerHTML : undefined,
-                    textReadMore: 'Read more'
-                }
-            }
-        }
+    });
+
+    $.r.init('app.items', {
+        type: 'post-item',
+        el: '#posts',
+        data: {
+            posts: $.r.ref('app.posts'),
+            postTemplate: $('#posts').children().length > 1 ? $('#posts').children()[1].outerHTML : undefined,
+            textReadMore: 'Read more'
+        },
     });
 
     /* Further tests */
@@ -220,23 +219,27 @@ import {jqre} from '../modules.min/jqre.js';
     console.log('instances restore data', $.r.listInstancesRestoreData());
     console.log('state', $.r.listState());
     console.log('state update events', $.r.listStateUpdateEvents());
-    $.r.destroy('app');
-    console.log('app destroyed', $.r.data);
+    console.log('App children', $.r.data.instances['app'].$children);
+    $.r.destroy('app.items');
+    console.log($.r.data);
 
     $.r.init('app', {
         type: 'post-list',
         el: '#app',
         data: {
-            title: 'Total posts',
+            title: $('h1').text(),
             noPostsMessage: 'No posts to show'
         },
-        components: {
-            items: {
-                data: {
-                    textReadMore: 'Read more'
-                }
-            }
-        }
+    });
+
+    $.r.init('app.items', {
+        type: 'post-item',
+        el: '#posts',
+        data: {
+            posts: $.r.ref('app.posts'),
+            postTemplate: $('#posts').children().length > 1 ? $('#posts').children()[1].outerHTML : undefined,
+            textReadMore: 'Read more'
+        },
     });
     /**/-->
 

@@ -75,12 +75,7 @@ I love Bootstrap too. For the css part of bootstrap I use PurgeCss to get rid of
 - [x] `touchPunch` and `swipe` functions
 - [x] Compressor scripts
     
- I am pretty pleased to mention that the full monolithic library has only 41.1 KB minified, 11.3 KB gzip compressed
-- [ ] Modules for Bootstrap 5 components
-- [ ] Improve modular compress for monolith version
-    
-    Currently all that the modular compression of monolith version does is to not preserve the function names of the modules that are not passed to the minify script, but they are still present, just not callable. They should not be present anymore. I am thinking to write a script that creates a temporary file without the functions to be removed, that will be passed to the minify script.
-- [ ] Improve documentation, write a wiki
+ I am pretty pleased to mention that the full monolithic library has only 42 KB minified.
 - [ ] Rewrite more apis, that are marked with *may get support*
 
 ## How to use
@@ -102,6 +97,16 @@ If you give no parameter to `jqre()` function, just the core functions will be l
 
 ```
 await $.loadModule('autocomplete');
+```
+
+Another way to load modules, if you do not know in what module a function resides, is by awaiting on it:
+
+```
+await $.isArray;
+$.isArray([]);
+
+await $("#id").children;
+$("#id").children().length;
 ```
 
 Also, if you create your own jQRe module you can add it and load it:
@@ -156,14 +161,10 @@ The reactive component can be accessed using `$.r`.
     'type' - a unqiue identifier for this component type
     'settings' - an object with the following structure
         'data' - object containing key - value pairs
-        'components' - object of instance definitions
-            'instanceName' - object
-                'type' - component type
-                'el' - component root element or selector
-                'data' - object containing key - value pairs
         'methods' - object with functions
         'events'
             'create' - function
+            'destroy' - function
             'update' - object
                 'dataVariableName' - function(oldValue)
             'domEvent' - object
@@ -182,15 +183,6 @@ The reactive component can be accessed using `$.r`.
             posts: [],
             totalPosts: 0
         },
-        components: {
-            items: {
-                type: 'post-item',
-                el: '#posts',
-                data: {
-                    posts: $.r.ref('this.posts')
-                }
-            }
-        },
         methods: {
             addPost: function(title) {
                 this.posts.push({title: title});
@@ -201,6 +193,9 @@ The reactive component can be accessed using `$.r`.
                 if (this.$find('#no-posts').length === 0) {
                     this.$el.append('<div id="no-posts"><p>' + this.noPostsMessage + '</p></div>');
                 }
+            },
+            destroy: function() {
+                console.log(this.$id + ' destroyed');
             },
             update: {
                 posts: function(oldV) {
@@ -234,10 +229,6 @@ The reactive component can be accessed using `$.r`.
         'type' - component type
         'el' - component root element or selector
         'data' - object containing key - value pairs
-        'components' - object of instance definitions
-            'instanceName' - object
-                'data' - object containing key - value pairs
-                'components' - object of instance definitions
 
     Example:
 
@@ -247,19 +238,12 @@ The reactive component can be accessed using `$.r`.
         data: {
             title: 'Title',
             posts: postsData
-        },
-        components: {
-            items: {
-                data: {
-                    textReadMore: 'Read more'
-                }
-            }
         }
     });
 
 - destroy(id)
-  Only top level instances can be destroyed, and all their children will be destroyed recursively as well.
-  The HTML is not removed.
+  Current component and all their children will be destroyed recursively.
+  The HTML is not removed but is restored.
 - trigger(id, customEvent, params = null)
   Global function that can trigger a custom event on an instance with specified params.
 - get(refId)
@@ -267,7 +251,6 @@ The reactive component can be accessed using `$.r`.
   Variable refId is built using parent component chain and variable name joined by dots: "parentComponent.component.variable".
 - ref(refId)
   Return a reference to a reactive variable that can be used anywhere, like when instantiang a component, or in a child component data.
-  In a child component data, a ref from the current component can be passed using "this" keyword as well: "$.r.ref('this.variable')".
   All refs with the same refId point to the same actual variable, no extra memory is used.
 - attach(idRef, handler, instanceId = null)
   Bind a function to a variable update event. The function receives the old value of the variable as parameter.
@@ -297,7 +280,8 @@ The reactive component can be accessed using `$.r`.
 ```
 - $id instance id
 - $el instance root element
-- $parent instance parent root element if exists
+- $parent instance of the parent if exists
+- $children array of child instances
 - $emit(event, data = null)
   Emit a custom event with the given data. Event bubbles until it is first captured.
 - $find(selector)
@@ -315,6 +299,7 @@ The reactive component can be accessed using `$.r`.
 - val()
     Reactive variables can be used normally using ".val()", ".set()" and ".unset()" functions.
     When inside a component method or event, they are accessed directly; a deep proxy is used to preserve reactivity in this case.
+    Update events do not run during component methods or events.
 - set(index, value = undefined)
     Set a variable value, or optionally, the value at the specified index, if it's an array or object.
 - unset(index = null)
@@ -322,6 +307,9 @@ The reactive component can be accessed using `$.r`.
 ```
 
 A simple, fully working example can be found at [`test/re.html`](test/re.html).
+
+
+**A version of the reactive module for jQuery as well as generation and minifying scripts can be found in root.**
 
 
 ### Autocomplete module

@@ -1,4 +1,18 @@
 class JNode extends Array {
+    constructor() {
+        super();
+        return new Proxy(this, {
+            get: function(target, key) {
+                if (key === 'then') {
+                    return;
+                }
+                if (!(key in target)) {
+                    return JMain.loadModuleByFunction(key, false);
+                }
+                return target[key];
+            }
+        });
+    }
     add(selector, context = null) {
         const results = [];
         if (typeof selector === 'string') {
@@ -89,7 +103,7 @@ JMain._internal = {
         }
         return selector;
     },
-    VERSION: '1.1.0'
+    VERSION: '2.0.0'
 }
 
 async function jqre(modules = []) {
@@ -129,13 +143,197 @@ async function jqre(modules = []) {
             await import('./jqre.' + name + '.js');
         }
     };
+    JMain.loadModuleByFunction = async function(func, main) {
+        if (main) {
+            const JMainModulesFunctions = {
+                'dom': [
+                    'baseManipution',
+                ],
+                'ajax': [
+                    'ajax',
+                    'get',
+                    'getJSON',
+                    'param',
+                    'post',
+                    'ajaxBase',
+                ],
+                'event': [
+                    'touchPounch',
+                    'eventHandler',
+                    'runEventShorthand',
+                ],
+                'misc': [
+                    'clone',
+                    'contains',
+                    'data',
+                    'each',
+                    'fn',
+                    'inArray',
+                    'isArray',
+                    'isEmptyObject',
+                    'isFunction',
+                    'isNumeric',
+                    'isPlainObject',
+                    'makeArray',
+                    'noop',
+                    'now',
+                ],
+                'reactive': [
+                    'r',
+                ]
+            };
+            for (const m in JMainModulesFunctions) {
+                if (JMainModulesFunctions[m].includes(func)) {
+                    await JMain.loadModule(m);
+                    break;
+                }
+            }
+            return;
+        }
+        const JNodeModulesFunctions = {
+            'node': [
+                'addClass',
+                'removeClass',
+                'toggleClass',
+                'hasClass',
+                'attr',
+                'removeAttr',
+                'data',
+                'removeData',
+                'prop',
+                'removeProp',
+                'val',
+                'css',
+                'height',
+                'width',
+                'innerHeight',
+                'innerWidth',
+                'outerHeight',
+                'outerWidth',
+                'show',
+                'hide',
+                'toggle',
+            ],
+            'dom': [
+                'after',
+                'insertAfter',
+                'before',
+                'insertBefore',
+                'append',
+                'appendTo',
+                'prepend',
+                'prependTo',
+                'replaceWith',
+                'replaceAll',
+                'clone',
+                'wrap',
+                'remove',
+                'empty',
+                'html',
+                'runScripts',
+                'text',
+            ],
+            'navigation': [
+                'children',
+                'closest',
+                'parent',
+                'unique',
+                'next',
+                'prev',
+                'first',
+                'last',
+                'find',
+                'filter',
+                'even',
+                'odd',
+                'has',
+                'is',
+                'not',
+                'index',
+            ],
+            'ajax': [
+                'load',
+                'serialize',
+                'serializeArray',
+            ],
+            'event': [
+                'off',
+                'on',
+                'swipe',
+                'trigger',
+            ],
+            'shortevent': [
+                'blur',
+                'change',
+                'click',
+                'contextmenu',
+                'dblclick',
+                'focus',
+                'focusin',
+                'focusout',
+                'hover',
+                'keydown',
+                'keypress',
+                'keyup',
+                'mousedown',
+                'mouseenter',
+                'mouseleave',
+                'mousemove',
+                'mouseout',
+                'mouseover',
+                'mouseup',
+                'ready',
+                'resize',
+                'scroll',
+                'submit',
+                'select',
+            ],
+            'misc': [
+                'get',
+                'size',
+                'slice',
+                'toArray',
+                'scrollLeft',
+                'scrollTop',
+            ],
+            'autocomplete': [
+                'autocomplete',
+            ],
+            'dialog': [
+                'dialog',
+            ]
+        }
+        for (const m in JNodeModulesFunctions) {
+            if (JNodeModulesFunctions[m].includes(func)) {
+                await JMain.loadModule(m);
+            }
+        }
+    }
     if (modules.length === 1 && modules[0] === 'all') {
         modules = JMain._internal.moduleList;
     }
     for (const i of modules) {
         await JMain.loadModule(i);
     }
-    return JMain;
+    return new Proxy(JMain, {
+        get: function(target, key) {
+            if (key === 'then') {
+                return;
+            }
+            if (!(key in target)) {
+                if (key === '_internal') {
+                    return JMain.loadModule(['dom', 'ajax', 'event']);
+                } else if (key === 'r') {
+                    return JMain.loadModule(['reactive']);
+                } else if (key === 'fn') {
+                    return JMain.loadModule(['misc']);
+                } else {
+                    return JMain.loadModuleByFunction(key, true);
+                }
+            }
+            return target[key];
+        }
+    });
 }
 
 export { JNode, JMain, jqre };

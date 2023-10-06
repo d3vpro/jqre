@@ -1859,7 +1859,7 @@ function jqre() {
             }
             return selector;
         },
-        VERSION: '1.1.0'
+        VERSION: '2.0.0'
     }
 
 
@@ -1890,7 +1890,7 @@ function jqre() {
             let el, parent = null;
             if (data.parent.length > 0) {
                 el = Reactive.data.instances[data.parent]['$el'].find(data.el, true);
-                parent = Reactive.data.instances[data.parent]['$el'];
+                parent = Reactive.data.instances[data.parent];
             } else {
                 el = new JNode().add(data.el, true);
             }
@@ -1905,6 +1905,10 @@ function jqre() {
             Object.defineProperty(this, '$parent', {
                 value: parent,
                 writable: false
+            });
+            Object.defineProperty(this, '$children', {
+                value: {},
+                writable: true
             });
             for (const i in data.data) {
                 Object.defineProperty(this, i, {
@@ -1924,7 +1928,15 @@ function jqre() {
             const path = id.split('.');
             while (id.length) {
                 if (Reactive.data.instancesCustomEvents[id][event]) {
+                    const delayed = Reactive.delayRefresh;
+                    if (!delayed) {
+                        Reactive.delayRefresh = true;
+                    }
                     Reactive.data.instancesCustomEvents[id][event].call(Reactive.data.instances[id], data);
+                    if (!delayed) {
+                        Reactive.delayRefresh = false;
+                        JMain.r.refresh(null);
+                    }
                     return true;
                 }
                 path.pop();
@@ -1962,7 +1974,9 @@ function jqre() {
                 delete Reactive.data.instancesRestoreData[this['$id']][selector];
             }
         }
-        static reactiveMap = new WeakMap()
+        static delayRefresh = false;
+        static refreshDelayedList = new Set();
+        static reactiveMap = new WeakMap();
         static initReactive(target, path, root = true) {
             const proxy = new Proxy(target, {
                 get(target, key) {
@@ -1977,6 +1991,14 @@ function jqre() {
                             value = JMain.r.get(value.id);
                         } else if (typeof value === 'function' && !['$emit', '$find', '$remove', '$restore'].includes(key)) {
                             return value.bind(info.proxy);
+                        } else if (key == '$children') {
+                            target[key] = {};
+                            for (const k in Reactive.data.instances) {
+                                if (k.length > target.$id.length && k.indexOf(target.$id) === 0 && k.split('.').length === target.$id.split('.').length + 1) {
+                                    target[key][k.substring(target.$id.length + 1)] = Reactive.data.instances[k];
+                                }
+                            }
+                            return target[key];
                         } else {
                             return target[key];
                         }
@@ -2026,6 +2048,7 @@ function jqre() {
                         delete target[key];
                         JMain.r.refresh(info.path, null, oldVal);
                     }
+                    return true;
                 },
             });
             Reactive.reactiveMap.set(target, {
@@ -2044,7 +2067,6 @@ function jqre() {
         state: {},
         stateUpdateEvents: {}
     };
-    
     JMain.r = {
         listDefinitions: function() {
             return Object.keys(Reactive.data.definitions);
@@ -2081,7 +2103,6 @@ function jqre() {
                 return false;
             }
             const d = {};
-            d.components = data['components'] ?? {};
             d.data = data['data'] ?? {};
             d.events = data['events'] ?? {};
             d.methods = data['methods'] ?? {};
@@ -2094,6 +2115,10 @@ function jqre() {
                 console.error(`Type '${instanceData.type}' not defined!`);
                 return false;
             }
+            if (Reactive.data.instances[id] !== undefined) {
+                console.error(`ID '${id}' already exists!`);
+                return false;
+            }
             data.el = instanceData['el'];
             data.type = instanceData['type'];
             data.parent = id.includes('.') ? id.split('.').slice(0, -1).join('.') : '';
@@ -2101,41 +2126,6 @@ function jqre() {
                 for (const i in instanceData['data']) {
                     if (data.data.hasOwnProperty(i)) {
                         data.data[i] = instanceData['data'][i];
-                    }
-                }
-            }
-            if (instanceData['components']) {
-                for (const i in instanceData['components']) {
-                    const cd = Reactive.data.definitions[data.components[i]['type']];
-                    if (!cd) {
-                        console.error(`Type '${data.components[i]['type']}' not defined!`);
-                        return false;
-                    }
-                    if (!data.components[i].hasOwnProperty('data')) {
-                        data.components[i].data = {};
-                    }
-                    if (instanceData['components'][i]['data']) {
-                        for (const j in instanceData['components'][i]['data']) {
-                            if (cd.data.hasOwnProperty(j)) {
-                                data.components[i].data[j] = instanceData['components'][i].data[j];
-                            }
-                        }
-                    }
-                    if (instanceData['components'][i]['components']) {
-                        data.components[i].components = instanceData['components'][i].components;
-                    }
-                }
-            }
-            // replace this from components data
-            for (const i in data.components) {
-                if (data.components[i].data) {
-                    for (const j in data.components[i].data) {
-                        const k = data.components[i].data[j]
-                        if (k instanceof ReactiveVar) {
-                            if (k.id.split('.')[0] === 'this') {
-                                data.components[i].data[j] = JMain.r.ref(id + '.' + k.id.substr(5));
-                            }
-                        }
                     }
                 }
             }
@@ -2150,7 +2140,15 @@ function jqre() {
             const updateEventsToExecute = [];
             if (data.events) {
                 if (data.events['create']) {
+                    const delayed = Reactive.delayRefresh;
+                    if (!delayed) {
+                        Reactive.delayRefresh = true;
+                    }
                     data.events['create'].call(Reactive.data.instances[id]);
+                    if (!delayed) {
+                        Reactive.delayRefresh = false;
+                        JMain.r.refresh(null);
+                    }
                 }
                 if (data.events['update']) {
                     for (const i in data.data) {
@@ -2159,6 +2157,9 @@ function jqre() {
                             updateEventsToExecute.push(data.data[i]);
                         }
                     }
+                }
+                if (data.events['destroy']) {
+                    Reactive.data.instances[id]['$el'].on('jqreDestroy', data.events['destroy'].bind(Reactive.data.instances[id]));
                 }
                 for (const i in data.events) {
                     if (i === 'create' || i === 'update') {
@@ -2174,15 +2175,22 @@ function jqre() {
                                 useCapture = handler['useCapture'] ?? null;
                                 handler = handler['handler'];
                             }
-                            Reactive.data.instances[id]['$el'].on(i, j, eventData, handler.bind(Reactive.data.instances[id]), useCapture);
+                            Reactive.data.instances[id]['$el'].on(i, j, eventData, function (event) {
+                                const delayed = Reactive.delayRefresh;
+                                if (!delayed) {
+                                    Reactive.delayRefresh = true;
+                                }
+                                handler.call(Reactive.data.instances[id], event);
+                                if (!delayed) {
+                                    Reactive.delayRefresh = false;
+                                    JMain.r.refresh(null);
+                                }
+                            }, useCapture);
                         }
                     } else {
                         Reactive.data.instancesCustomEvents[id][i] = data.events[i];
                     }
                 }
-            }
-            for (const i in data.components) {
-                JMain.r.init(id + '.' + i, data.components[i]);
             }
             for (const i of updateEventsToExecute) {
                 JMain.r.refresh(i);
@@ -2196,31 +2204,24 @@ function jqre() {
             return false;
         },
         destroy: function(id) {
-            if (!id.includes('.') && Reactive.data.instances.hasOwnProperty(id)) {
+            if (Reactive.data.instances.hasOwnProperty(id)) {
                 const idC = id + '.';
-                const idLength = idC.length;
+
+                for (const i in Reactive.data.instances) {
+                    if (i.substr(0, idC.length) === idC) {
+                        JMain.r.destroy(i);
+                    }
+                }
+                Reactive.data.instances[id]['$el'].trigger('jqreDestroy');
 
                 for (const i in Reactive.data.state) {
-                    if (i.substr(0, idLength) === idC) {
+                    if (i.substr(0, idC.length) === idC) {
                         JMain.r.unset(i);
                     }
                 }
 
-                for (const i in Reactive.data.instancesCustomEvents) {
-                    if (i.substr(0, idLength) === idC) {
-                        delete Reactive.data.instancesCustomEvents[i];
-                    }
-                }
                 delete Reactive.data.instancesCustomEvents[id];
 
-                for (const i in Reactive.data.instancesRestoreData) {
-                    if (i.substr(0, idLength) === idC) {
-                        for (const j in Reactive.data.instancesRestoreData[i]) {
-                            Reactive.data.instances[i].$restore(j);
-                        }
-                        delete Reactive.data.instancesRestoreData[i];
-                    }
-                }
                 if (Reactive.data.instancesRestoreData[id]) {
                     for (const i in Reactive.data.instancesRestoreData[id]) {
                         Reactive.data.instances[id].$restore(i);
@@ -2228,15 +2229,9 @@ function jqre() {
                     delete Reactive.data.instancesRestoreData[id];
                 }
 
-                for (const i in Reactive.data.instances) {
-                    if (i.substr(0, idLength) === idC) {
-                        Reactive.data.instances[i]['$el'].off();
-                        delete Reactive.data.instances[i];
-                    }
-                }
                 Reactive.data.instances[id]['$el'].off();
                 delete Reactive.data.instances[id];
-                
+
                 return true;
             }
             return false;
@@ -2294,8 +2289,28 @@ function jqre() {
             return false;
         },
         refresh: async function(idRef, handlerOrIndex = null, oldVal = undefined) {
+            if (idRef === null) {
+                Reactive.refreshDelayedList.forEach(item => {
+                    Reactive.refreshDelayedList.delete(item);
+                    JMain.r.refresh(item.idRef, item.handlerOrIndex, item.oldVal);
+                });
+                return;
+            }
+            if (Reactive.delayRefresh) {
+                Reactive.refreshDelayedList.add({
+                    idRef: idRef,
+                    handlerOrIndex: handlerOrIndex,
+                    oldVal: oldVal,
+                });
+                return;
+            }
             if (typeof idRef !== 'string') {
                 idRef = idRef.id;
+            }
+            let ret = false;
+            const delayed = Reactive.delayRefresh;
+            if (!delayed) {
+                Reactive.delayRefresh = true;
             }
             if (Reactive.data.stateUpdateEvents[idRef]) {
                 if (oldVal === undefined) {
@@ -2306,27 +2321,30 @@ function jqre() {
                         for (const i in Reactive.data.stateUpdateEvents[idRef]) {
                             if (Reactive.data.stateUpdateEvents[idRef][i].handler === handlerOrIndex) {
                                 Reactive.data.stateUpdateEvents[idRef][i].handler.call(Reactive.data.instances[Reactive.data.stateUpdateEvents[idRef][i].instanceId], oldVal);
-                                return true;
+                                ret = true;
+                                break;
                             }
                         }
                     } else if (!isNaN(handlerOrIndex)) {
                         if (Reactive.data.stateUpdateEvents[idRef][handlerOrIndex]) {
                             Reactive.data.stateUpdateEvents[idRef][handlerOrIndex].handler.call(Reactive.data.instances[Reactive.data.stateUpdateEvents[idRef][handlerOrIndex].instanceId], oldVal);
-                            return true;
+                            ret = true;
                         }
                     }
                 } else {
-                    let r = false;
                     for (const i in Reactive.data.stateUpdateEvents[idRef]) {
-                        if (Reactive.data.stateUpdateEvents[idRef][i]) {
+                        if (Reactive.data.stateUpdateEvents[idRef][i] && Reactive.data.instances[Reactive.data.stateUpdateEvents[idRef][i].instanceId]) {
                             Reactive.data.stateUpdateEvents[idRef][i].handler.call(Reactive.data.instances[Reactive.data.stateUpdateEvents[idRef][i].instanceId], oldVal);
-                            r = true;
+                            ret = true;
                         }
                     }
-                    return r;
                 }
             }
-            return false;
+            if (!delayed) {
+                Reactive.delayRefresh = false;
+                JMain.r.refresh(null);
+            }
+            return ret;
         },
         set: function(idRef, index, value = undefined) {
             if (typeof idRef !== 'string') {
@@ -2405,6 +2423,7 @@ function jqre() {
         'state': Reactive.data.state,
         'stateUpdateEvents': Reactive.data.stateUpdateEvents,
         'map': Reactive.reactiveMap,
+        'refreshDelayedList': Reactive.refreshDelayedList,
     };
 
 

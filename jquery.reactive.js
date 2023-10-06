@@ -1,4 +1,5 @@
-import { JNode, JMain } from './jqre.js';
+jQuery.extend({
+    r: (function () {
 
 class ReactiveVar {
     constructor(id) {
@@ -26,10 +27,10 @@ class Reactive {
     constructor(id, data) {
         let el, parent = null;
         if (data.parent.length > 0) {
-            el = Reactive.data.instances[data.parent]['$el'].find(data.el, true);
+            el = Reactive.data.instances[data.parent]['$el'].find(data.el).first();
             parent = Reactive.data.instances[data.parent];
         } else {
-            el = new JNode().add(data.el, true);
+            el = jQuery(data.el).first();
         }
         Object.defineProperty(this, '$id', {
             value: id,
@@ -94,7 +95,7 @@ class Reactive {
                 Reactive.data.instancesRestoreData[this['$id']][selector] = [];
             }
         }
-        for (const [i, el] of els.entries()) {
+        for (const [i, el] of els.toArray().entries()) {
             let comment = document.createComment(this['$id'] + ' ' + selector + ' ' + i);
             el.parentNode.replaceChild(comment, el);
             Reactive.data.instancesRestoreData[this['$id']][selector].push({
@@ -205,6 +206,7 @@ Reactive.data = {
     stateUpdateEvents: {}
 };
 
+const JMain = {};
 JMain.r = {
     listDefinitions: function() {
         return Object.keys(Reactive.data.definitions);
@@ -563,3 +565,7 @@ JMain.r.data = {
     'map': Reactive.reactiveMap,
     'refreshDelayedList': Reactive.refreshDelayedList,
 };
+
+        return JMain.r;
+    })(),
+});

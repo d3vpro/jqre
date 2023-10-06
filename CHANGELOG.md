@@ -4,11 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.0] - 2023-10-06
+
+### Added
+
+- MAJOR Added posibility to load modules by awaiting on functions
+- MINOR Adedd `destroy` event for reactive components
+- MINOR Added `$children` property on reactive instances
+- MINOR Added jQuery version of reactive module, generation and minifier scripts
+
+### Changed
+
+- BREAKING Removed components from reactive components definition. Components can be linked by id structure
+- MAJOR Changed reactive update events to not run during reactive methods and events
+- MINOR Changed reactive `destroy` to be able to destroy non-root components
+
+### Fixed
+
+- MINOR Fixed reactive var property delete
+- MINOR Fixed preventing reactive components initialization with existing id
+
 ## [1.1.0] - 2023-10-02
 
 ### Changed
 
-- MAJOR Changed reactive variables getting, setting and unsetting inside component; Direct manipulation based on proxies has been implemented
+- BREAKING Changed reactive variables getting, setting and unsetting inside component; Direct manipulation based on proxies has been implemented
 - MINOR Changed `refresh` function to async
 - MINOR Changed monolithic minifier input and output ES version
 
