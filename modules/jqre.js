@@ -103,7 +103,7 @@ JMain._internal = {
         }
         return selector;
     },
-    VERSION: '2.0.0'
+    VERSION: '2.0.1'
 }
 
 async function jqre(modules = []) {

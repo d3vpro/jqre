@@ -54,10 +54,7 @@ JNode.prototype.scrollTop = function(value = null) {
 }
 
 JMain.clone = function(variable) {
-    if (variable === undefined || variable === null || (/boolean|number|string/).test(typeof variable)) {
-        return variable;
-    }
-    return JSON.parse(JSON.stringify(variable));
+    return structuredClone(variable);
 }
 JMain.contains = function(container, contained) {
     return container.contains(contained);

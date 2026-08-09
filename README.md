@@ -281,7 +281,7 @@ The reactive component can be accessed using `$.r`.
 - $id instance id
 - $el instance root element
 - $parent instance of the parent if exists
-- $children array of child instances
+- $children array of child instances. Parent and children are chained only by instance ids.
 - $emit(event, data = null)
   Emit a custom event with the given data. Event bubbles until it is first captured.
 - $find(selector)

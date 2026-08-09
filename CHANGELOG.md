@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.1] - 2026-08-09
+
+### Fixed
+
+- MINOR Fixed error on input events
+- MINOR Changed clone functions to use `structuredClone`
+- MINOR Added error on reactive init if parent or target element do no exist
+
 ## [2.0.0] - 2023-10-06
 
 ### Added

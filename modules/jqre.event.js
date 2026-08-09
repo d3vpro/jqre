@@ -53,7 +53,7 @@ class JEventHandler {
         this.garbageCollect();
     }
     handleEvent(eventType, funcData, event) {
-        if (funcData.data !== null) {
+        if (funcData.data !== null && eventType != 'input') {
             event.data = funcData.data;
         }
         if ((!eventType.includes('.') && !event['namespace']) || event['namespace'] === eventType.split('.').slice(1).join('.')) {

@@ -53,7 +53,7 @@ function jqre() {
             this.garbageCollect();
         }
         handleEvent(eventType, funcData, event) {
-            if (funcData.data !== null) {
+            if (funcData.data !== null && eventType != 'input') {
                 event.data = funcData.data;
             }
             if ((!eventType.includes('.') && !event['namespace']) || event['namespace'] === eventType.split('.').slice(1).join('.')) {
@@ -1411,10 +1411,7 @@ function jqre() {
     // .jQuery.Callbacks() missing, support not planned
     // .jQuery.clone() new function, clone object with properties recursive
     JMain.clone = function(variable) {
-        if (variable === undefined || variable === null || (/boolean|number|string/).test(typeof variable)) {
-            return variable;
-        }
-        return JSON.parse(JSON.stringify(variable));
+        return structuredClone(variable);
     }
     // .jQuery.contains() full support
     JMain.contains = function(container, contained) {
@@ -1859,7 +1856,7 @@ function jqre() {
             }
             return selector;
         },
-        VERSION: '2.0.0'
+        VERSION: '2.0.1'
     }
 
 
@@ -1994,8 +1991,8 @@ function jqre() {
                         } else if (key == '$children') {
                             target[key] = {};
                             for (const k in Reactive.data.instances) {
-                                if (k.length > target.$id.length && k.indexOf(target.$id) === 0 && k.split('.').length === target.$id.split('.').length + 1) {
-                                    target[key][k.substring(target.$id.length + 1)] = Reactive.data.instances[k];
+                                if (k.length > target['$id'].length && k.indexOf(target['$id']) === 0 && k.split('.').length === target['$id'].split('.').length + 1) {
+                                    target[key][k.substring(target['$id'].length + 1)] = Reactive.data.instances[k];
                                 }
                             }
                             return target[key];
@@ -2122,6 +2119,18 @@ function jqre() {
             data.el = instanceData['el'];
             data.type = instanceData['type'];
             data.parent = id.includes('.') ? id.split('.').slice(0, -1).join('.') : '';
+            if (data.parent) {
+                if (!Reactive.data.instances[data.parent]) {
+                    console.error(`Parent instance '${data.parent}' does not exist!`);
+                    return false;
+                } else if (Reactive.data.instances[data.parent]['$el'].find(data.el, true).length === 0) {
+                    console.error(`Instance target element '${data.el}' does not exist in parent '${data.parent}'!`);
+                    return false;
+                }
+            } else if ((new JNode().add(data.el, true)).length === 0) {
+                console.error(`Instance target element '${data.el}' does not exist!`);
+                return false;
+            }
             if (instanceData['data']) {
                 for (const i in instanceData['data']) {
                     if (data.data.hasOwnProperty(i)) {
@@ -2162,7 +2171,7 @@ function jqre() {
                     Reactive.data.instances[id]['$el'].on('jqreDestroy', data.events['destroy'].bind(Reactive.data.instances[id]));
                 }
                 for (const i in data.events) {
-                    if (i === 'create' || i === 'update') {
+                    if (i === 'create' || i === 'update' || i === 'destroy') {
                         continue;
                     }
                     if (typeof data.events[i] === 'object') {
@@ -2356,7 +2365,7 @@ function jqre() {
             if (value === undefined) {
                 newVal = index;
             } else {
-                newVal = (/boolean|number|string/).test(typeof oldVal) ? oldVal : JSON.parse(JSON.stringify(oldVal));
+                newVal = structuredClone(oldVal);
                 if (typeof newVal === 'object' && newVal !== null) {
                     newVal[index] = value;
                 } else {
