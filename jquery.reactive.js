@@ -291,17 +291,6 @@ JMain.r = {
         Reactive.data.instancesCustomEvents[id] = {};
         const updateEventsToExecute = [];
         if (data.events) {
-            if (data.events['create']) {
-                const delayed = Reactive.delayRefresh;
-                if (!delayed) {
-                    Reactive.delayRefresh = true;
-                }
-                data.events['create'].call(Reactive.data.instances[id]);
-                if (!delayed) {
-                    Reactive.delayRefresh = false;
-                    JMain.r.refresh(null);
-                }
-            }
             if (data.events['update']) {
                 for (const i in data.data) {
                     if (data.events['update'][i]) {
@@ -341,6 +330,17 @@ JMain.r = {
                     }
                 } else {
                     Reactive.data.instancesCustomEvents[id][i] = data.events[i];
+                }
+            }
+            if (data.events['create']) {
+                const delayed = Reactive.delayRefresh;
+                if (!delayed) {
+                    Reactive.delayRefresh = true;
+                }
+                data.events['create'].call(Reactive.data.instances[id]);
+                if (!delayed) {
+                    Reactive.delayRefresh = false;
+                    JMain.r.refresh(null);
                 }
             }
         }

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.2] - 2026-11-14
+
+### Fixed
+
+- MINOR Changed reactive `create` event to run after attaching the other events, to be able to trigger them
+
 ## [2.0.1] - 2026-08-09
 
 ### Fixed
